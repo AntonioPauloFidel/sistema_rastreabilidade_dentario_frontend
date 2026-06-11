@@ -4,6 +4,7 @@ import { Loading } from '../components/Loading'
 import { LayoutAutenticado } from '../layouts/LayoutAutenticado'
 import { LayoutPublico } from '../layouts/LayoutPublico'
 import NaoEncontrado from '../pages/NaoEncontrado'
+import Login from '../pages/Login'
 
 function ProtectedRoute() {
   const { estaAutenticado, carregando } = useAuth()
@@ -31,7 +32,7 @@ export function AppRoutes() {
         {/* Rotas públicas */}
         <Route element={<PublicRoute />}>
           <Route element={<LayoutPublico />}>
-            <Route path="/login" element={<div>Login</div>} />
+            <Route path="/login" element={<Login />} />
             <Route path="/consulta" element={<div>Consulta pública</div>} />
           </Route>
         </Route>
