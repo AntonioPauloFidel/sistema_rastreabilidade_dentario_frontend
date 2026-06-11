@@ -45,7 +45,8 @@
 .toothWrapper {
   display: flex;
   justify-content: center;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 12px 24px rgba(0,0,0,0.3));
 }
 
 .badge {
