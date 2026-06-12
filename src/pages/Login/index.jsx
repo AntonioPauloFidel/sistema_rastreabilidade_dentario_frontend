@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Form, Input, Button, Alert } from 'antd'
 import { MailOutlined, LockOutlined, StarFilled } from '@ant-design/icons'
+import { BeakerIcon } from '@heroicons/react/24/outline'
 import { useAuth } from '../../hooks/useAuth'
 import styles from './styles.module.css'
 
@@ -12,50 +13,6 @@ const schema = z.object({
   email: z.string().email('E-mail inválido'),
   senha: z.string().min(8, 'A senha deve ter no mínimo 8 caracteres'),
 })
-
-function ToothSVG() {
-  return (
-    <div className={styles.toothGlow}>
-      <svg width="110" height="130" viewBox="0 0 110 130" fill="none" xmlns="http://www.w3.org/2000/svg">
-        {/* Corpo do dente */}
-        <path
-          d="M55 6
-             C42 6 28 14 22 26
-             C16 38 18 54 22 66
-             C25 76 28 86 30 100
-             C32 112 35 126 41 126
-             C46 126 48 112 55 112
-             C62 112 64 126 69 126
-             C75 126 78 112 80 100
-             C82 86 85 76 88 66
-             C92 54 94 38 88 26
-             C82 14 68 6 55 6Z"
-          fill="white"
-          fillOpacity="0.95"
-        />
-        {/* Cúspide esquerda */}
-        <path
-          d="M30 32 C28 22 34 10 42 8 C46 7 50 10 51 16 C52 22 50 30 46 36 C42 40 34 40 30 36Z"
-          fill="white"
-          fillOpacity="0.95"
-        />
-        {/* Cúspide direita */}
-        <path
-          d="M80 32 C82 22 76 10 68 8 C64 7 60 10 59 16 C58 22 60 30 64 36 C68 40 76 40 80 36Z"
-          fill="white"
-          fillOpacity="0.95"
-        />
-        {/* Sulco central */}
-        <path d="M55 12 C55 24 55 38 55 50" stroke="rgba(3,140,90,0.2)" strokeWidth="2" strokeLinecap="round" />
-        {/* Linha de detalhe horizontal */}
-        <path d="M34 58 C42 62 48 64 55 64 C62 64 68 62 76 58" stroke="rgba(3,140,90,0.15)" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-        {/* Brilho */}
-        <ellipse cx="40" cy="30" rx="10" ry="14" fill="white" fillOpacity="0.5" />
-        <ellipse cx="36" cy="26" rx="4" ry="6" fill="white" fillOpacity="0.6" />
-      </svg>
-    </div>
-  )
-}
 
 export default function Login() {
   const { login } = useAuth()
@@ -91,7 +48,9 @@ export default function Login() {
             <span className={styles.logoText}>Sirde</span>
           </div>
 
-          <ToothSVG />
+          <div className={styles.iconWrapper}>
+            <BeakerIcon className={styles.heroIcon} />
+          </div>
 
           <span className={styles.badge}>● Plataforma segura</span>
 
