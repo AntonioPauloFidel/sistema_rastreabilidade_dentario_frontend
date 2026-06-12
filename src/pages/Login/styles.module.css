@@ -65,9 +65,13 @@
 }
 
 .toothImg {
-  width: 100px;
+  width: 110px;
   height: auto;
-  filter: drop-shadow(0 0 16px rgba(5, 242, 155, 0.55));
+  /* converte PNG branco/cinza para verde #05F29B com glow */
+  filter:
+    brightness(0) saturate(100%)
+    invert(78%) sepia(60%) saturate(500%) hue-rotate(100deg) brightness(110%)
+    drop-shadow(0 0 18px rgba(5, 242, 155, 0.7));
 }
 
 /* ── Badge ── */
