@@ -64,11 +64,10 @@
   margin-bottom: 20px;
 }
 
-.heroIcon {
-  width: 72px;
-  height: 72px;
-  color: #05F29B;
-  filter: drop-shadow(0 0 14px rgba(5, 242, 155, 0.6));
+.toothImg {
+  width: 100px;
+  height: auto;
+  filter: drop-shadow(0 0 16px rgba(5, 242, 155, 0.55));
 }
 
 /* ── Badge ── */
