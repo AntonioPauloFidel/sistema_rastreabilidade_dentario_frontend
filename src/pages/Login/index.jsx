@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Form, Input, Button, Alert } from 'antd'
 import { MailOutlined, LockOutlined, StarFilled } from '@ant-design/icons'
-import { BeakerIcon } from '@heroicons/react/24/outline'
+import toothSvg from '../../assets/tooth.svg'
 import { useAuth } from '../../hooks/useAuth'
 import styles from './styles.module.css'
 
@@ -49,7 +49,7 @@ export default function Login() {
           </div>
 
           <div className={styles.iconWrapper}>
-            <BeakerIcon className={styles.heroIcon} />
+            <img src={toothSvg} alt="Dente" className={styles.toothImg} />
           </div>
 
           <span className={styles.badge}>● Plataforma segura</span>
@@ -74,7 +74,7 @@ export default function Login() {
             </div>
           </div>
 
-          <div className={styles.testimonial}>
+          {/* <div className={styles.testimonial}>
             <p className={styles.testimonialText}>
               "A Sirde aumentou nossa produtividade em 40% no primeiro mês de uso."
             </p>
@@ -85,7 +85,7 @@ export default function Login() {
                 <div className={styles.testimonialRole}>Diretora de Produto · TechBrasil</div>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Card direito */}
