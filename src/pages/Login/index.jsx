@@ -1,40 +1,31 @@
 import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { useForm, Controller } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { Form, Input, Button, Alert } from 'antd'
 import { MailOutlined, LockOutlined, StarFilled } from '@ant-design/icons'
 import dentePng from '../../assets/dente.png'
 import { useAuth } from '../../hooks/useAuth'
 import styles from './styles.module.css'
 
-const schema = z.object({
-  email: z.string().min(1, 'E-mail obrigatório').email('E-mail inválido'),
-  senha: z.string().min(8, 'A senha deve ter no mínimo 8 caracteres'),
-})
-
 export default function Login() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [erro, setErro] = useState(null)
-
-  const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm({
-    resolver: zodResolver(schema),
-    defaultValues: { email: '', senha: '' },
-    mode: 'onSubmit',
-  })
+  const [carregando, setCarregando] = useState(false)
+  const [form] = Form.useForm()
 
   const destino = location.state?.from?.pathname ?? '/dashboard'
 
   async function onSubmit({ email, senha }) {
     setErro(null)
+    setCarregando(true)
     try {
       await login(email, senha)
       navigate(destino, { replace: true })
     } catch (err) {
       setErro(err.response?.data?.mensagem ?? 'Credenciais inválidas. Tente novamente.')
+    } finally {
+      setCarregando(false)
     }
   }
 
@@ -98,53 +89,43 @@ export default function Login() {
 
           {erro && <Alert message={erro} type="error" showIcon style={{ marginBottom: 20 }} />}
 
-          <Form layout="vertical" onFinish={handleSubmit(onSubmit)} requiredMark={false}>
+          <Form form={form} layout="vertical" onFinish={onSubmit} requiredMark={false}>
             <Form.Item
+              name="email"
               label={<span className={styles.label}>E-mail</span>}
-              validateStatus={errors.email ? 'error' : ''}
-              help={errors.email?.message}
+              rules={[
+                { required: true, message: 'E-mail obrigatório' },
+                { type: 'email', message: 'E-mail inválido' },
+              ]}
             >
-              <Controller
-                name="email"
-                control={control}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
-                    onBlur={onBlur}
-                    prefix={<MailOutlined style={{ color: '#9ca3af' }} />}
-                    placeholder="voce@empresa.com"
-                    size="large"
-                    className={styles.input}
-                  />
-                )}
+              <Input
+                prefix={<MailOutlined style={{ color: '#9ca3af' }} />}
+                placeholder="voce@empresa.com"
+                size="large"
+                autoComplete="email"
+                className={styles.input}
               />
             </Form.Item>
 
             <Form.Item
+              name="senha"
+              rules={[
+                { required: true, message: 'Senha obrigatória' },
+                { min: 8, message: 'Mínimo 8 caracteres' },
+              ]}
               label={
                 <div className={styles.senhaRow}>
                   <span className={styles.label}>Senha</span>
                   <span className={styles.link}>Esqueceu a senha?</span>
                 </div>
               }
-              validateStatus={errors.senha ? 'error' : ''}
-              help={errors.senha?.message}
             >
-              <Controller
-                name="senha"
-                control={control}
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <Input.Password
-                    value={value}
-                    onChange={(e) => onChange(e.target.value)}
-                    onBlur={onBlur}
-                    prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
-                    placeholder="••••••••"
-                    size="large"
-                    className={styles.input}
-                  />
-                )}
+              <Input.Password
+                prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
+                placeholder="••••••••"
+                size="large"
+                autoComplete="current-password"
+                className={styles.input}
               />
             </Form.Item>
 
@@ -152,7 +133,7 @@ export default function Login() {
               <Button
                 type="primary"
                 htmlType="submit"
-                loading={isSubmitting}
+                loading={carregando}
                 size="large"
                 block
                 className={styles.submitBtn}
