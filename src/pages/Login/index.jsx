@@ -10,7 +10,7 @@ import { useAuth } from '../../hooks/useAuth'
 import styles from './styles.module.css'
 
 const schema = z.object({
-  email: z.string().email('E-mail inválido'),
+  email: z.string().min(1, 'E-mail obrigatório').email('E-mail inválido'),
   senha: z.string().min(8, 'A senha deve ter no mínimo 8 caracteres'),
 })
 
@@ -23,6 +23,7 @@ export default function Login() {
   const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(schema),
     defaultValues: { email: '', senha: '' },
+    mode: 'onSubmit',
   })
 
   const destino = location.state?.from?.pathname ?? '/dashboard'
@@ -74,7 +75,7 @@ export default function Login() {
             </div>
           </div>
 
-          {/* <div className={styles.testimonial}>
+          <div className={styles.testimonial}>
             <p className={styles.testimonialText}>
               "A Sirde aumentou nossa produtividade em 40% no primeiro mês de uso."
             </p>
@@ -85,7 +86,7 @@ export default function Login() {
                 <div className={styles.testimonialRole}>Diretora de Produto · TechBrasil</div>
               </div>
             </div>
-          </div> */}
+          </div>
         </div>
 
         {/* Card direito */}
@@ -106,9 +107,11 @@ export default function Login() {
               <Controller
                 name="email"
                 control={control}
-                render={({ field }) => (
+                render={({ field: { onChange, onBlur, value } }) => (
                   <Input
-                    {...field}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    onBlur={onBlur}
                     prefix={<MailOutlined style={{ color: '#9ca3af' }} />}
                     placeholder="voce@empresa.com"
                     size="large"
@@ -131,9 +134,11 @@ export default function Login() {
               <Controller
                 name="senha"
                 control={control}
-                render={({ field }) => (
+                render={({ field: { onChange, onBlur, value } }) => (
                   <Input.Password
-                    {...field}
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    onBlur={onBlur}
                     prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
                     placeholder="••••••••"
                     size="large"
