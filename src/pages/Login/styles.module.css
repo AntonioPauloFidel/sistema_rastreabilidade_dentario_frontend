@@ -57,14 +57,18 @@
   color: white;
 }
 
-/* ── Dente com glow ── */
-.toothGlow {
+/* ── Ícone central ── */
+.iconWrapper {
   display: flex;
   justify-content: center;
   margin-bottom: 20px;
-  filter:
-    drop-shadow(0 0 18px rgba(5, 242, 155, 0.5))
-    drop-shadow(0 0 40px rgba(5, 242, 155, 0.25));
+}
+
+.heroIcon {
+  width: 72px;
+  height: 72px;
+  color: #05F29B;
+  filter: drop-shadow(0 0 14px rgba(5, 242, 155, 0.6));
 }
 
 /* ── Badge ── */
