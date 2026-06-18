@@ -6,6 +6,9 @@ import { PublicRoute } from './PublicRoute'
 import NaoEncontrado from '../pages/NaoEncontrado'
 import Login from '../pages/Login'
 
+// Módulos — pages/modules/* → herdam Navbar + Footer via LayoutAutenticado
+import Dashboard from '../pages/modules/home'
+
 // ─── Rotas públicas ───────────────────────────────────────────────────────────
 // Acessíveis sem login. Se já estiver autenticado, redireciona ao /dashboard.
 const rotasPublicas = (
@@ -23,7 +26,7 @@ const rotasProtegidas = (
   <Route element={<ProtectedRoute />}>
     <Route element={<LayoutAutenticado />}>
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="/dashboard" element={<div>Dashboard</div>} />
+      <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/dentes" element={<div>Dentes</div>} />
       <Route path="/dentes/:id" element={<div>Detalhe do dente</div>} />
       <Route path="/doadores" element={<div>Doadores</div>} />
