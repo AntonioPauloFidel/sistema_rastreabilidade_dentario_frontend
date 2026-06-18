@@ -220,14 +220,20 @@
   color: #374151;
 }
 
-.senhaRow {
+/* Container que agrupa o input e o link de esqueci a senha */
+.senhaInputContainer {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   width: 100%;
-  min-width: 300px;
 }
 
+/* Alinha o link perfeitamente colado ao input de cima e zerado à esquerda */
+.senhaRow {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 8px; /* Dá um respiro sutil e elegante em relação ao input */
+  padding-left: 2px; /* Ajuste milimétrico para alinhar com o início do input */
+}
 .input {
   border-radius: 8px !important;
   background: white !important;
