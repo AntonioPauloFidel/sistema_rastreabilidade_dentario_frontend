@@ -14,7 +14,7 @@ export default function Login() {
   const [carregando, setCarregando] = useState(false)
   const [form] = Form.useForm()
 
-  const destino = location.state?.from?.pathname ?? '/dashboard'
+  const destino = location.state?.from?.pathname ?? '/home'
 
   async function onSubmit({ email, senha }) {
     setErro(null)
@@ -89,7 +89,7 @@ export default function Login() {
             Não tem conta? <span className={styles.link}>Criar gratuitamente</span>
           </p>
 
-          {erro && <Alert message={erro} type="error" showIcon style={{ marginBottom: 20 }} />}
+          {erro && <Alert type="error" showIcon style={{ marginBottom: 20 }}>{erro}</Alert>}
 
           <Form form={form} layout="vertical" onFinish={onSubmit} requiredMark={false}>
             <Form.Item
