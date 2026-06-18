@@ -25,8 +25,8 @@ const rotasPublicas = (
 const rotasProtegidas = (
   <Route element={<ProtectedRoute />}>
     <Route element={<LayoutAutenticado />}>
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/" element={<Navigate to="/home" replace />} />
+      <Route path="/home" element={<Dashboard />} />
       <Route path="/dentes" element={<div>Dentes</div>} />
       <Route path="/dentes/:id" element={<div>Detalhe do dente</div>} />
       <Route path="/doadores" element={<div>Doadores</div>} />

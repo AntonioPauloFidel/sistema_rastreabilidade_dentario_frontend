@@ -6,7 +6,7 @@ export function PublicRoute() {
   const { estaAutenticado, carregando } = useAuth()
 
   if (carregando) return <Loading fullscreen />
-  if (estaAutenticado) return <Navigate to="/dashboard" replace />
+  if (estaAutenticado) return <Navigate to="/home" replace />
 
   return <Outlet />
 }

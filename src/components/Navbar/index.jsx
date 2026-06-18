@@ -22,7 +22,7 @@ import dentePng from '../../assets/dente.png'
 import styles from './styles.module.css'
 
 const itens = [
-  { path: '/dashboard',    label: 'Dashboard',    icon: <DashboardOutlined /> },
+  { path: '/home',         label: 'Home',         icon: <DashboardOutlined /> },
   { path: '/dentes',       label: 'Dentes',       icon: <ExperimentOutlined /> },
   { path: '/doadores',     label: 'Doadores',     icon: <HeartOutlined /> },
   { path: '/remessas',     label: 'Remessas',     icon: <SendOutlined /> },
