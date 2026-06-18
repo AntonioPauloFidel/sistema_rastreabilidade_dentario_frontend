@@ -17,7 +17,6 @@ export function AuthProvider({ children }) {
   const login = useCallback(async (email, senha) => {
     const res = await authService.login({ email, senha })
     setUsuario(res.data.usuario)
-    if (res.data.token) localStorage.setItem('token', res.data.token)
     return res.data
   }, [])
 
@@ -26,7 +25,6 @@ export function AuthProvider({ children }) {
       await authService.logout()
     } finally {
       setUsuario(null)
-      localStorage.removeItem('token')
     }
   }, [])
 
