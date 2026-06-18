@@ -61,7 +61,9 @@ export default function Login() {
               <span className={styles.statLabel}>Uptime</span>
             </div>
             <div className={styles.stat}>
-              <span className={styles.statValue}>4.9<StarFilled style={{ fontSize: 11, marginLeft: 1 }} /></span>
+              <span className={styles.statValue}>
+                4.9<StarFilled style={{ fontSize: 11, marginLeft: 1 }} />
+              </span>
               <span className={styles.statLabel}>Avaliação</span>
             </div>
           </div>
@@ -107,29 +109,33 @@ export default function Login() {
               />
             </Form.Item>
 
+            {/* Campo de Senha */}
             <Form.Item
               name="senha"
+              label={<span className={styles.label}>Senha</span>}
               rules={[
                 { required: true, message: 'Senha obrigatória' },
                 { min: 8, message: 'Mínimo 8 caracteres' },
               ]}
-              label={
+              style={{ marginBottom: 24 }}
+            >
+              <div className={styles.senhaInputContainer}>
+                <Input.Password
+                  prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
+                  placeholder="••••••••"
+                  size="large"
+                  autoComplete="current-password"
+                  className={styles.input}
+                />
+
                 <div className={styles.senhaRow}>
-                  <span className={styles.label}>Senha</span>
                   <span className={styles.link}>Esqueceu a senha?</span>
                 </div>
-              }
-            >
-              <Input.Password
-                prefix={<LockOutlined style={{ color: '#9ca3af' }} />}
-                placeholder="••••••••"
-                size="large"
-                autoComplete="current-password"
-                className={styles.input}
-              />
+              </div>
             </Form.Item>
 
-            <Form.Item style={{ marginTop: 8, marginBottom: 0 }}>
+            {/* Botão de Enviar */}
+            <Form.Item style={{ marginBottom: 0 }}>
               <Button
                 type="primary"
                 htmlType="submit"
