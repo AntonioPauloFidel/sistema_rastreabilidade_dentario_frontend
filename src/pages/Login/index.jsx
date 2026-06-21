@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Form, Input, Button, Alert } from 'antd'
 import { MailOutlined, LockOutlined, StarFilled } from '@ant-design/icons'
-import dentePng from '../../assets/dente.png'
+import logoPng from '../../assets/Logo.png'
 import { useAuth } from '../../hooks/useAuth'
 import styles from './styles.module.css'
+
 
 export default function Login() {
   const { login } = useAuth()
@@ -12,6 +13,7 @@ export default function Login() {
   const location = useLocation()
   const [erro, setErro] = useState(null)
   const [carregando, setCarregando] = useState(false)
+  const [showSplash, setShowSplash] = useState(true)
   const [form] = Form.useForm()
 
   const destino = location.state?.from?.pathname ?? '/home'
@@ -29,55 +31,43 @@ export default function Login() {
     }
   }
 
+  useEffect(() => {
+    const t = setTimeout(() => setShowSplash(false), 1200)
+    return () => clearTimeout(t)
+  }, [])
   return (
-    <div className={styles.page}>
-      <div className={styles.container}>
+    <>
+      {showSplash && (
+        <div className={styles.splash}>
+          <img src={logoPng} alt="Splash" className={styles.splashImage} />
+        </div>
+      )}
 
-        {/* Card esquerdo */}
+      <div className={styles.page}>
+        <div className={styles.container}>
+
         <div className={styles.leftCard}>
-          <div className={styles.logo}>
-            <span className={styles.logoIcon}>S</span>
-            <span className={styles.logoText}>Sirde</span>
-          </div>
-
           <div className={styles.iconWrapper}>
-            <img src={dentePng} alt="Dente" className={styles.toothImg} />
+            <img src={logoPng} alt="Logo Sirde" className={styles.logoImage} />
           </div>
-
-          <span className={styles.badge}>● Plataforma segura</span>
 
           <h1 className={styles.heading}>Bem-vindo de volta à sua área de trabalho</h1>
           <p className={styles.subheading}>
-            Gerencie projetos, colabore com sua equipe e acompanhe métricas em tempo real.
+            Gerencie, acompanhe e rastreie processos odontológicos em um único sistema.
           </p>
 
-          <div className={styles.stats}>
-            <div className={styles.stat}>
-              <span className={styles.statValue}>12k+</span>
-              <span className={styles.statLabel}>Usuários</span>
+          <div className={styles.features}>
+            <div className={styles.feature}>
+              <span className={styles.featureIcon}>✓</span>
+              <span>Gestão completa de pacientes</span>
             </div>
-            <div className={styles.stat}>
-              <span className={styles.statValue}>99.9%</span>
-              <span className={styles.statLabel}>Uptime</span>
+            <div className={styles.feature}>
+              <span className={styles.featureIcon}>✓</span>
+              <span>Agendamentos simplificados</span>
             </div>
-            <div className={styles.stat}>
-              <span className={styles.statValue}>
-                4.9<StarFilled style={{ fontSize: 11, marginLeft: 1 }} />
-              </span>
-              <span className={styles.statLabel}>Avaliação</span>
-            </div>
-          </div>
-
-          <div className={styles.testimonial}>
-            <p className={styles.testimonialText}>
-              "A Sirde aumentou nossa produtividade em 40% no primeiro mês de uso."
-            </p>
-            <div className={styles.testimonialAuthor}>
-              <div className={styles.testimonialAvatar}>A</div>
-              <div>
-                <div className={styles.testimonialName}>Ana Beatriz Costa</div>
-                <div className={styles.testimonialRole}>Diretora de Produto · TechBrasil</div>
-              </div>
+            <div className={styles.feature}>
+              <span className={styles.featureIcon}>✓</span>
+              <span>Relatórios em tempo real</span>
             </div>
           </div>
         </div>
@@ -158,5 +148,6 @@ export default function Login() {
 
       </div>
     </div>
+    </>
   )
 }
