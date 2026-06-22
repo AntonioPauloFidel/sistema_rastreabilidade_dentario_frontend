@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { authService } from '../services/auth.service'
+import { authService } from '../services/auth/auth.service'
 import logoPng from '../assets/Logo.png'
 
 const AuthContext = createContext(null)
