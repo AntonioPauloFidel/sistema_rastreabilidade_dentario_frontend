@@ -1,4 +1,4 @@
-import { api } from './api'
+import { api } from '../api/api'
 
 export const authService = {
   login: (dados) => api.post('/api/auth/login', dados),

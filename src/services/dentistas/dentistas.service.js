@@ -1,4 +1,4 @@
-import { api } from './api'
+import { api } from '../api/api'
 
 export const dentistasService = {
   listar: (params) => api.get('/api/dentistas', { params }),

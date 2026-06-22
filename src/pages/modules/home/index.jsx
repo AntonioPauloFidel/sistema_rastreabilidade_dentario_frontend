@@ -7,7 +7,7 @@ import {
   FileTextOutlined,
 } from '@ant-design/icons'
 import { DashboardCard } from '../../../components/DashboardCard'
-import { dashboardService } from '../../../services/dashboard.service'
+import { dashboardService } from '../../../services/dashboard/dashboard.service'
 import { useAuth } from '../../../hooks/useAuth'
 import styles from './styles.module.css'
 
