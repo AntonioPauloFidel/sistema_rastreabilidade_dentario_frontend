@@ -12,11 +12,10 @@ export function AuthProvider({ children }) {
     const verificarAuth = async () => {
       try {
         const res = await authService.me()
-        setUsuario(res.data)
+        setUsuario(res.data.usuario ?? res.data)
       } catch {
         setUsuario(null)
       }
-      // Delay mínimo para o splash aparecer (1200ms)
       await new Promise(resolve => setTimeout(resolve, 1200))
       setCarregando(false)
     }
@@ -25,9 +24,11 @@ export function AuthProvider({ children }) {
   }, [])
 
   const login = useCallback(async (email, senha) => {
-    const res = await authService.login({ email, senha })
-    setUsuario(res.data.usuario)
-    return res.data
+    await authService.login({ email, senha })
+    const me = await authService.me()
+    const usuario = me.data.usuario ?? me.data
+    setUsuario(usuario)
+    return usuario
   }, [])
 
   const logout = useCallback(async () => {
