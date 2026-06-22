@@ -1,0 +1,19 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tabela {
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.idCurto {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #038C5A;
+  letter-spacing: 0.5px;
+}

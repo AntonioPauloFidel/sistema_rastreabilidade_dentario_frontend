@@ -5,5 +5,6 @@ export const authService = {
   logout: () => api.post('/api/auth/logout'),
   refresh: () => api.post('/api/auth/refresh'),
   me: () => api.get('/api/auth/me'),
-  alterarSenha: (dados) => api.put('/api/auth/senha', dados),
+  atualizarPerfil: (dados) => api.patch('/api/auth/me', dados),
+  alterarSenha: (dados) => api.patch('/api/auth/senha', dados),
 }
