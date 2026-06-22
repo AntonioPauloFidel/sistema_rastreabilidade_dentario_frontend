@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Form, Input, Button, Alert } from 'antd'
-import { MailOutlined, LockOutlined, StarFilled } from '@ant-design/icons'
+import { MailOutlined, LockOutlined } from '@ant-design/icons'
 import logoPng from '../../assets/Logo.png'
 import { useAuth } from '../../hooks/useAuth'
 import styles from './styles.module.css'
@@ -13,7 +13,6 @@ export default function Login() {
   const location = useLocation()
   const [erro, setErro] = useState(null)
   const [carregando, setCarregando] = useState(false)
-  const [showSplash, setShowSplash] = useState(true)
   const [form] = Form.useForm()
 
   const destino = location.state?.from?.pathname ?? '/home'
@@ -31,19 +30,8 @@ export default function Login() {
     }
   }
 
-  useEffect(() => {
-    const t = setTimeout(() => setShowSplash(false), 1200)
-    return () => clearTimeout(t)
-  }, [])
   return (
-    <>
-      {showSplash && (
-        <div className={styles.splash}>
-          <img src={logoPng} alt="Splash" className={styles.splashImage} />
-        </div>
-      )}
-
-      <div className={styles.page}>
+    <div className={styles.page}>
         <div className={styles.container}>
 
         <div className={styles.leftCard}>
@@ -75,9 +63,7 @@ export default function Login() {
         {/* Card direito */}
         <div className={styles.rightCard}>
           <h2 className={styles.formTitle}>Entrar na conta</h2>
-          <p className={styles.formSubtitle}>
-            Não tem conta? <span className={styles.link}>Criar gratuitamente</span>
-          </p>
+          
 
           {erro && <Alert type="error" showIcon style={{ marginBottom: 20 }}>{erro}</Alert>}
 
@@ -148,6 +134,5 @@ export default function Login() {
 
       </div>
     </div>
-    </>
   )
 }
