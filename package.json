@@ -1,7 +1,9 @@
 {
   "name": "sirde-frontend",
-  "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Frontend do sistema de biobanco odontológico SIRDE — rastreamento, gestão e cessão de dentes.",
+  "author": "Antonio Paulo Pereira Fidel <antoniopfdl.fidel@gmail.com>",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
