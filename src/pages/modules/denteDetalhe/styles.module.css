@@ -1,0 +1,63 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.topo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btnVoltar {
+  color: #038C5A;
+  font-weight: 500;
+  padding-left: 0;
+}
+
+.card {
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.cardTitulo {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.movItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.movStatuses {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.seta {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.movMotivo {
+  margin: 0;
+  font-size: 13px;
+  color: #374151;
+}
+
+.movData {
+  font-size: 11.5px;
+  color: #9ca3af;
+}
+
+.vazio {
+  font-size: 13px;
+  color: #9ca3af;
+  margin: 0;
+}

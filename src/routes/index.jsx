@@ -8,6 +8,19 @@ import Login from '../pages/Login'
 
 // Módulos — pages/modules/* → herdam Navbar + Footer via LayoutAutenticado
 import Dashboard from '../pages/modules/home'
+import Dentes from '../pages/modules/dentes'
+import DenteDetalhe from '../pages/modules/denteDetalhe'
+import Solicitacoes from '../pages/modules/solicitacoes'
+import Cessoes from '../pages/modules/cessoes'
+import Clinicas from '../pages/modules/clinicas'
+import Dentistas from '../pages/modules/dentistas'
+import Doadores from '../pages/modules/doadores'
+import Remessas from '../pages/modules/remessas'
+import Instituicoes from '../pages/modules/instituicoes'
+import Locais from '../pages/modules/locais'
+import Usuarios from '../pages/modules/usuarios'
+import Auditoria from '../pages/modules/auditoria'
+import Perfil from '../pages/modules/perfil'
 
 // ─── Rotas públicas ───────────────────────────────────────────────────────────
 // Acessíveis sem login. Se já estiver autenticado, redireciona ao /dashboard.
@@ -27,19 +40,19 @@ const rotasProtegidas = (
     <Route element={<LayoutAutenticado />}>
       <Route path="/" element={<Navigate to="/home" replace />} />
       <Route path="/home" element={<Dashboard />} />
-      <Route path="/dentes" element={<div>Dentes</div>} />
-      <Route path="/dentes/:id" element={<div>Detalhe do dente</div>} />
-      <Route path="/doadores" element={<div>Doadores</div>} />
-      <Route path="/remessas" element={<div>Remessas</div>} />
-      <Route path="/solicitacoes" element={<div>Solicitações</div>} />
-      <Route path="/cessoes" element={<div>Cessões</div>} />
-      <Route path="/instituicoes" element={<div>Instituições</div>} />
-      <Route path="/clinicas" element={<div>Clínicas</div>} />
-      <Route path="/dentistas" element={<div>Dentistas</div>} />
-      <Route path="/locais" element={<div>Locais</div>} />
-      <Route path="/usuarios" element={<div>Usuários</div>} />
-      <Route path="/auditoria" element={<div>Auditoria</div>} />
-      <Route path="/perfil" element={<div>Perfil</div>} />
+      <Route path="/dentes" element={<Dentes />} />
+      <Route path="/dentes/:id" element={<DenteDetalhe />} />
+      <Route path="/doadores" element={<Doadores />} />
+      <Route path="/remessas" element={<Remessas />} />
+      <Route path="/solicitacoes" element={<Solicitacoes />} />
+      <Route path="/cessoes" element={<Cessoes />} />
+      <Route path="/instituicoes" element={<Instituicoes />} />
+      <Route path="/clinicas" element={<Clinicas />} />
+      <Route path="/dentistas" element={<Dentistas />} />
+      <Route path="/locais" element={<Locais />} />
+      <Route path="/usuarios" element={<Usuarios />} />
+      <Route path="/auditoria" element={<Auditoria />} />
+      <Route path="/perfil" element={<Perfil />} />
     </Route>
   </Route>
 )
