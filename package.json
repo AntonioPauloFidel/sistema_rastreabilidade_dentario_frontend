@@ -2,10 +2,11 @@
   "name": "sistema-rastreabilidade-dentario-frontend",
   "version": "1.0.0",
   "description": "Frontend do sistema de biobanco odontológico SIRDE — rastreamento, gestão e cessão de dentes.",
+  "keywords": ["biobanco", "dentes", "saude", "react", "vite", "antdesign"],
   "contributors": [
-    "Antonio Paulo Pereira Fidel <antoniopfdl.fidel@gmail.com>",
-    "Savio",
-    "Leydson"
+    "Antonio Paulo Fidel <antoniopfdl.fidel@gmail.com>",
+    "Savio <saviotrapz@gmail.com>",
+    "Leydson Luis <leydson.rodrigued@gmail.com>"
   ],
   "license": "MIT",
   "type": "module",
