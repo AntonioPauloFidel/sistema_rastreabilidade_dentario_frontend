@@ -64,8 +64,8 @@ Autenticação via **cookie httpOnly** (JWT — access token 5 min / refresh tok
 ### Instalação
 
 ```bash
-git clone https://github.com/AntonioPauloFidel/SIRDE_FrontEnd.git
-cd SIRDE_FrontEnd
+git clone https://github.com/AntonioPauloFidel/sistema_rastreabilidade_dentario_frontend.git
+cd sistema_rastreabilidade_dentario_frontend
 npm install
 ```
 
