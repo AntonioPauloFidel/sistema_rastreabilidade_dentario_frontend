@@ -116,4 +116,4 @@ src/
 
 ## Licença
 
-MIT © 2026 [Antonio Paulo Pereira Fidel](https://github.com/AntonioPauloFidel)
+MIT © 2026 Antonio Paulo Pereira Fidel, Savio e Leydson
