@@ -18,7 +18,7 @@ import {
   MenuUnfoldOutlined,
 } from '@ant-design/icons'
 import { useAuth } from '../../hooks/useAuth'
-import dentePng from '../../assets/dente.png'
+import dentePng from '../../assets/Logo.png'
 import styles from './styles.module.css'
 
 const itens = [
@@ -55,7 +55,7 @@ export function Navbar() {
       {/* Logo */}
       <div className={styles.logo}>
         <img src={dentePng} alt="Sirde" className={styles.logoIcon} />
-        {!collapsed && <span className={styles.logoText}>Sirde</span>}
+        {/*{!collapsed && <span className={styles.logoText}>Sirde</span>}*/}
       </div>
 
       {/* Toggle */}

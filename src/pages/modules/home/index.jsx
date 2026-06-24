@@ -1,15 +1,21 @@
 import { useEffect, useState } from 'react'
-import { Skeleton, Alert, Table, Tag } from 'antd'
+import { useNavigate } from 'react-router-dom'
+import { Skeleton, Alert, Tag, Timeline } from 'antd'
 import {
   ExperimentOutlined,
-  HeartOutlined,
-  SendOutlined,
   FileTextOutlined,
+  SendOutlined,
+  MedicineBoxOutlined,
+  PlusOutlined,
+  HistoryOutlined,
 } from '@ant-design/icons'
 import { DashboardCard } from '../../../components/DashboardCard'
-import { dashboardService } from '../../../services/dashboard.service'
+import { dashboardService } from '../../../services/dashboard/dashboard.service'
+import { auditoriaService } from '../../../services/auditoria/auditoria.service'
 import { useAuth } from '../../../hooks/useAuth'
 import styles from './styles.module.css'
+
+const PERFIS_AUDITORIA = ['ADMIN', 'AUDITOR', 'BIOBANCO_GESTOR']
 
 const saudacao = () => {
   const h = new Date().getHours()
@@ -22,76 +28,81 @@ const DATA_HOJE = new Date().toLocaleDateString('pt-BR', {
   weekday: 'long', day: '2-digit', month: 'long', year: 'numeric',
 })
 
+function formatarData(iso) {
+  if (!iso) return '—'
+  return new Date(iso).toLocaleString('pt-BR', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  })
+}
+
 export default function Home() {
   const { usuario } = useAuth()
-  const [metricas, setMetricas] = useState(null)
-  const [grafico, setGrafico] = useState([])
+  const navigate = useNavigate()
+  const [resumo, setResumo] = useState(null)
+  const [auditoria, setAuditoria] = useState([])
   const [carregando, setCarregando] = useState(true)
+  const [carregandoAuditoria, setCarregandoAuditoria] = useState(false)
   const [erro, setErro] = useState(null)
 
+  const podeVerAuditoria = PERFIS_AUDITORIA.includes(usuario?.perfil)
+
   useEffect(() => {
-    Promise.all([
-      dashboardService.metricas(),
-      dashboardService.graficoStatus(),
-    ])
-      .then(([resMetricas, resGrafico]) => {
-        setMetricas(resMetricas.data)
-        setGrafico(resGrafico.data ?? [])
-      })
-      .catch(() => setErro('Não foi possível carregar os dados do dashboard.'))
-      .finally(() => setCarregando(false))
+    async function carregar() {
+      try {
+        const res = await dashboardService.resumo()
+        setResumo(res.data.resumo)
+      } catch {
+        setErro('Não foi possível carregar os dados do dashboard.')
+      } finally {
+        setCarregando(false)
+      }
+    }
+    carregar()
   }, [])
+
+  useEffect(() => {
+    if (!podeVerAuditoria) return
+    setCarregandoAuditoria(true)
+    auditoriaService.listar({ page: 1, limit: 5 })
+      .then((res) => setAuditoria(res.data?.data ?? []))
+      .catch(() => {})
+      .finally(() => setCarregandoAuditoria(false))
+  }, [podeVerAuditoria])
 
   const primeiroNome = usuario?.nome?.split(' ')[0] ?? 'Usuário'
 
   const cards = [
     {
       titulo: 'Total de Dentes',
-      valor: metricas?.totalDentes ?? 0,
+      valor: resumo?.dentes?.total ?? 0,
       icone: <ExperimentOutlined />,
-      variacao: metricas?.variacaoDentes,
       cor: 'verde',
     },
     {
-      titulo: 'Doadores Ativos',
-      valor: metricas?.totalDoadores ?? 0,
-      icone: <HeartOutlined />,
-      variacao: metricas?.variacaoDoadores,
-      cor: 'accent',
+      titulo: 'Solicitações Pendentes',
+      valor: resumo?.solicitacoes?.pendentes ?? 0,
+      icone: <FileTextOutlined />,
+      cor: 'vermelho',
     },
     {
-      titulo: 'Remessas',
-      valor: metricas?.totalRemessas ?? 0,
+      titulo: 'Remessas este mês',
+      valor: resumo?.remessas?.ultimo_mes ?? 0,
       icone: <SendOutlined />,
-      variacao: metricas?.variacaoRemessas,
       cor: 'amarelo',
     },
     {
-      titulo: 'Solicitações Pendentes',
-      valor: metricas?.solicitacoesPendentes ?? 0,
-      icone: <FileTextOutlined />,
-      variacao: metricas?.variacaoSolicitacoes,
-      cor: 'vermelho',
+      titulo: 'Clínicas Ativas',
+      valor: resumo?.clinicas_ativas ?? 0,
+      icone: <MedicineBoxOutlined />,
+      cor: 'accent',
     },
   ]
 
-  const colunas = [
-    { title: 'Status', dataIndex: 'status', key: 'status',
-      render: (s) => {
-        const map = {
-          disponivel:  { color: '#038C5A', label: 'Disponível' },
-          reservado:   { color: '#d97706', label: 'Reservado' },
-          cedido:      { color: '#6366f1', label: 'Cedido' },
-          descartado:  { color: '#dc2626', label: 'Descartado' },
-        }
-        const cfg = map[s] ?? { color: '#6b7280', label: s }
-        return <Tag color={cfg.color}>{cfg.label}</Tag>
-      },
-    },
-    { title: 'Quantidade', dataIndex: 'quantidade', key: 'quantidade', align: 'right' },
-    { title: '%', dataIndex: 'percentual', key: 'percentual', align: 'right',
-      render: (v) => v != null ? `${v}%` : '—',
-    },
+  const acoesRapidas = [
+    { label: 'Novo Dente',       path: '/dentes',       cor: '#038C5A' },
+    { label: 'Nova Remessa',     path: '/remessas',     cor: '#d97706' },
+    { label: 'Nova Solicitação', path: '/solicitacoes', cor: '#6366f1' },
   ]
 
   return (
@@ -111,25 +122,69 @@ export default function Home() {
       {/* Cards de métricas */}
       <div className={styles.cards}>
         {cards.map((c) =>
-          carregando ? (
-            <Skeleton.Button key={c.titulo} active block style={{ height: 110, borderRadius: 8 }} />
-          ) : (
-            <DashboardCard key={c.titulo} {...c} />
-          )
+          carregando
+            ? <Skeleton.Button key={c.titulo} active block style={{ height: 110, borderRadius: 8 }} />
+            : <DashboardCard key={c.titulo} {...c} />
         )}
       </div>
 
-      {/* Tabela de distribuição por status */}
-      <div className={styles.secao}>
-        <h2 className={styles.secaoTitulo}>Distribuição por Status</h2>
-        <Table
-          dataSource={grafico}
-          columns={colunas}
-          rowKey="status"
-          loading={carregando}
-          pagination={false}
-          size="middle"
-        />
+      {/* Ações rápidas + Atividade recente */}
+      <div className={styles.grid}>
+
+        {/* Ações rápidas */}
+        <div className={styles.secao}>
+          <h2 className={styles.secaoTitulo}>
+            <PlusOutlined style={{ marginRight: 8, color: '#038C5A' }} />
+            Ações rápidas
+          </h2>
+          <div className={styles.acoes}>
+            {acoesRapidas.map(({ label, path, cor }) => (
+              <button
+                key={path}
+                className={styles.acaoBotao}
+                style={{ borderColor: cor, color: cor }}
+                onClick={() => navigate(path)}
+              >
+                <PlusOutlined />
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Atividade recente — só para perfis com acesso */}
+        {podeVerAuditoria && (
+          <div className={styles.secao}>
+            <h2 className={styles.secaoTitulo}>
+              <HistoryOutlined style={{ marginRight: 8, color: '#038C5A' }} />
+              Atividade recente
+            </h2>
+
+            {carregandoAuditoria ? (
+              <Skeleton active paragraph={{ rows: 4 }} />
+            ) : auditoria.length === 0 ? (
+              <p className={styles.vazio}>Nenhuma atividade registrada.</p>
+            ) : (
+              <Timeline
+                items={auditoria.map((ev) => ({
+                  color: '#038C5A',
+                  children: (
+                    <div className={styles.eventoAuditoria}>
+                      <span className={styles.eventoAcao}>
+                        <Tag color="green">{ev.acao ?? ev.entidade ?? '—'}</Tag>
+                        {ev.descricao ?? ev.detalhes ?? ''}
+                      </span>
+                      <span className={styles.eventoData}>
+                        {formatarData(ev.criadoEm ?? ev.createdAt)}
+                      </span>
+                    </div>
+                  ),
+                }))}
+              />
+            )}
+          </div>
+        )}
+
       </div>
     </div>
   )
