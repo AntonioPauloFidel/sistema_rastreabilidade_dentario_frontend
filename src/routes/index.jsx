@@ -5,6 +5,7 @@ import { ProtectedRoute } from './ProtectedRoute'
 import { PublicRoute } from './PublicRoute'
 import NaoEncontrado from '../pages/NaoEncontrado'
 import Login from '../pages/Login'
+import Consulta from '../pages/Consulta'
 
 // Módulos — pages/modules/* → herdam Navbar + Footer via LayoutAutenticado
 import Dashboard from '../pages/modules/home'
@@ -28,7 +29,7 @@ const rotasPublicas = (
   <Route element={<PublicRoute />}>
     <Route element={<LayoutPublico />}>
       <Route path="/login" element={<Login />} />
-      <Route path="/consulta" element={<div>Consulta pública</div>} />
+      <Route path="/consulta" element={<Consulta />} />
     </Route>
   </Route>
 )
