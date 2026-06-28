@@ -10,6 +10,9 @@ import {
   HistoryOutlined,
 } from '@ant-design/icons'
 import { DashboardCard } from '../../../components/DashboardCard'
+import { GraficoPizza } from '../../../components/Charts/GraficoPizza'
+import { GraficoBarras } from '../../../components/Charts/GraficoBarras'
+import { GraficoLinha } from '../../../components/Charts/GraficoLinha'
 import { dashboardService } from '../../../services/dashboard/dashboard.service'
 import { auditoriaService } from '../../../services/auditoria/auditoria.service'
 import { useAuth } from '../../../hooks/useAuth'
@@ -41,8 +44,12 @@ export default function Home() {
   const navigate = useNavigate()
   const [resumo, setResumo] = useState(null)
   const [auditoria, setAuditoria] = useState([])
+  const [dadosGraficoStatus, setDadosGraficoStatus] = useState([])
+  const [dadosGraficoTipo, setDadosGraficoTipo] = useState([])
+  const [dadosGraficoMensal, setDadosGraficoMensal] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [carregandoAuditoria, setCarregandoAuditoria] = useState(false)
+  const [carregandoGraficos, setCarregandoGraficos] = useState(true)
   const [erro, setErro] = useState(null)
 
   const podeVerAuditoria = PERFIS_AUDITORIA.includes(usuario?.perfil)
@@ -51,7 +58,7 @@ export default function Home() {
     async function carregar() {
       try {
         const res = await dashboardService.resumo()
-        setResumo(res.data.resumo)
+        setResumo(res.data?.resumo ?? res.data ?? null)
       } catch {
         setErro('Não foi possível carregar os dados do dashboard.')
       } finally {
@@ -59,6 +66,35 @@ export default function Home() {
       }
     }
     carregar()
+  }, [])
+
+  useEffect(() => {
+    async function carregarGraficos() {
+      try {
+        setCarregandoGraficos(true)
+        const [statusRes, tipoRes, mensalRes] = await Promise.all([
+          dashboardService.graficoStatus().catch(() => ({ data: [] })),
+          dashboardService.graficoTipo?.().catch(() => ({ data: [] })) ?? Promise.resolve({ data: [] }),
+          dashboardService.graficoMensal().catch(() => ({ data: [] })),
+        ])
+
+        const status = statusRes.data?.data ?? statusRes.data?.dados ?? statusRes.data ?? []
+        const tipo = tipoRes.data?.data ?? tipoRes.data?.dados ?? tipoRes.data ?? []
+        const mensal = mensalRes.data?.data ?? mensalRes.data?.dados ?? mensalRes.data ?? []
+
+        setDadosGraficoStatus(Array.isArray(status) ? status : [])
+        setDadosGraficoTipo(Array.isArray(tipo) ? tipo : [])
+        setDadosGraficoMensal(Array.isArray(mensal) ? mensal : [])
+      } catch {
+        setDadosGraficoStatus([])
+        setDadosGraficoTipo([])
+        setDadosGraficoMensal([])
+      } finally {
+        setCarregandoGraficos(false)
+      }
+    }
+
+    carregarGraficos()
   }, [])
 
   useEffect(() => {
@@ -126,6 +162,43 @@ export default function Home() {
             ? <Skeleton.Button key={c.titulo} active block style={{ height: 110, borderRadius: 8 }} />
             : <DashboardCard key={c.titulo} {...c} />
         )}
+      </div>
+
+      {/* Gráficos */}
+      <div className={styles.graficosGrid}>
+        <GraficoPizza
+          dados={dadosGraficoStatus}
+          cores={{
+            ARMAZENADO: '#038C5A',
+            CEDIDO: '#05F29B',
+            EM_TRIAGEM: '#0EA5E9',
+            DESCARTADO: '#F59E0B',
+            TRANSFERIDO: '#8B5CF6',
+          }}
+          altura={300}
+          titulo="Dentes por status"
+          carregando={carregandoGraficos}
+        />
+        <GraficoBarras
+          dados={dadosGraficoTipo}
+          cores={{
+            MOLAR: '#038C5A',
+            INCISIVO: '#05F29B',
+            CANINO: '#0EA5E9',
+            PREMOLAR: '#F59E0B',
+          }}
+          altura={300}
+          titulo="Dentes por tipo"
+          carregando={carregandoGraficos}
+        />
+        <div className={styles.graficoLinhaWrapper}>
+          <GraficoLinha
+            dados={dadosGraficoMensal}
+            altura={300}
+            titulo="Cessões por mês"
+            carregando={carregandoGraficos}
+          />
+        </div>
       </div>
 
       {/* Ações rápidas + Atividade recente */}

@@ -114,10 +114,10 @@ export default function Login() {
           <div className={styles.card}>
             <img src={logoPng} alt="Sirde" className={styles.cardLogo} />
 
-            <p className={styles.cardSubtitulo}>para Gestão Odontológica</p>
+            <p className={styles.cardSubtitulo}>Rastreamento Inteligente de Dentes</p>
 
             <p className={styles.cardDesc}>
-              Gerencie sua clínica, pacientes, agendamentos e muito mais em um só lugar.
+              Simplifique o controle de materiais odontológicos com um sistema desenvolvido para garantir organização, transparência e rastreabilidade.
             </p>
 
             <div className={styles.beneficios}>
