@@ -1,16 +1,119 @@
-# React + Vite
+# SIRDE — Sistema de Rastreamento de Dentes
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Frontend do sistema de biobanco odontológico para gestão, rastreamento e cessão de dentes.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Visão Geral
 
-## React Compiler
+O **SIRDE** é uma aplicação web desenvolvida para clínicas, dentistas e instituições de ensino que participam de biobancos odontológicos. O sistema permite:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Cadastro e rastreamento de dentes com histórico completo de movimentações
+- Gestão de doadores, remessas e locais de armazenamento
+- Fluxo de solicitações com workflow de aprovação e recusa
+- Controle de cessões vinculadas a solicitações aprovadas
+- Painel administrativo para usuários, auditoria e perfis de acesso
+- Dashboard com métricas e atividade recente
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Stack
+
+| Tecnologia | Versão |
+|---|---|
+| React | 19 |
+| Vite | 7 |
+| Ant Design | 6 |
+| React Router | 7 |
+| Axios | 1 |
+| Tailwind CSS | 4 |
+| lucide-react | — |
+
+Autenticação via **cookie httpOnly** (JWT — access token 5 min / refresh token 7 dias).
+
+---
+
+## Módulos
+
+| Módulo | Rota |
+|---|---|
+| Dashboard | `/home` |
+| Dentes | `/dentes` |
+| Detalhe do Dente | `/dentes/:id` |
+| Doadores | `/doadores` |
+| Remessas | `/remessas` |
+| Solicitações | `/solicitacoes` |
+| Cessões | `/cessoes` |
+| Instituições | `/instituicoes` |
+| Clínicas | `/clinicas` |
+| Dentistas | `/dentistas` |
+| Locais de Armazenamento | `/locais` |
+| Usuários | `/usuarios` |
+| Auditoria | `/auditoria` |
+| Perfil | `/perfil` |
+
+---
+
+## Como rodar
+
+### Pré-requisitos
+
+- Node.js 20+
+- Backend SIRDE rodando em `localhost:3000`
+
+### Instalação
+
+```bash
+git clone https://github.com/AntonioPauloFidel/sistema_rastreabilidade_dentario_frontend.git
+cd sistema_rastreabilidade_dentario_frontend
+npm install
+```
+
+### Configuração
+
+Copie o arquivo de exemplo e ajuste se necessário:
+
+```bash
+cp .env.example .env
+```
+
+> Em desenvolvimento o Vite já faz proxy de `/api` para `localhost:3000` automaticamente — não é preciso alterar o `.env`.
+
+### Executar
+
+```bash
+npm run dev
+```
+
+Acesse `http://localhost:5173`.
+
+### Build
+
+```bash
+npm run build
+```
+
+---
+
+## Estrutura
+
+```
+src/
+├── assets/          # Imagens e recursos estáticos
+├── components/      # Componentes reutilizáveis (Table, Modal, FilterBar, Carousel…)
+├── constants/       # Enums do sistema (STATUS_DENTE, TIPO_DENTE, PERFIL_USUARIO…)
+├── contexts/        # AuthContext — estado global de autenticação
+├── hooks/           # Hooks customizados (useAuth, useToast)
+├── layouts/         # LayoutAutenticado (Navbar + Footer) e LayoutPublico
+├── pages/
+│   ├── Login/       # Tela de login
+│   └── modules/     # Páginas protegidas — herdam Navbar + Footer automaticamente
+├── routes/          # AppRoutes, ProtectedRoute, PublicRoute
+└── services/        # Chamadas à API (axios) organizadas por domínio
+```
+
+---
+
+## Licença
+
+MIT © 2026 Antonio Paulo Fidel, Savio e Leydson Luis
