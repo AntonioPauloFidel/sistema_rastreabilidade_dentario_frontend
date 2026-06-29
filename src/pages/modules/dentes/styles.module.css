@@ -10,3 +10,31 @@
   gap: 12px;
   flex-wrap: wrap;
 }
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.carregando {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
