@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
-  Table, Tag, Button, Modal, Form, Input, InputNumber, Select, message, Space,
+  Table, Tag, Button, Modal, Form, Input, InputNumber, Select, message, Space, Tooltip,
 } from 'antd'
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
+import { PlusOutlined, DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { PageHeader } from '../../../components/PageHeader'
 import { solicitacoesService } from '../../../services/solicitacoes/solicitacoes.service'
 import { instituicoesService } from '../../../services/instituicoes/instituicoes.service'
+import { dentesService } from '../../../services/dentes/dentes.service'
 import { STATUS_SOLICITACAO, FINALIDADE, TIPO_DENTE, toSelectOptions } from '../../../constants/enums'
 import { Select as CustomSelect } from '../../../components/Select'
 import styles from './styles.module.css'
@@ -36,6 +37,9 @@ export default function Solicitacoes() {
   const [instituicoes, setInstituicoes] = useState([])
   const [instituicoesCarregando, setInstituicoesCarregando] = useState(false)
   const [temItens, setTemItens] = useState(false)
+  // dentes disponíveis agrupados: { [instituicaoId]: { [tipoDente]: count } }
+  const [disponiveis, setDisponiveis] = useState({})
+  const [carregandoDisponiveis, setCarregandoDisponiveis] = useState(false)
 
   // Modal aprovar
   const [modalAprovarAberto, setModalAprovarAberto] = useState(false)
@@ -78,6 +82,27 @@ export default function Solicitacoes() {
     }
   }, [])
 
+  const carregarDisponiveis = useCallback(async () => {
+    setCarregandoDisponiveis(true)
+    try {
+      const res = await dentesService.listar({ status: 'ARMAZENADO', limit: 1000 })
+      const lista = res.data?.data ?? res.data?.dentes ?? res.data ?? []
+      // agrupar: { [instituicaoId]: { [tipoDente]: count } }
+      const mapa = {}
+      for (const dente of lista) {
+        const instId = dente.localAtual?.instituicaoId ?? dente.instituicaoId ?? 'SEM_INSTITUICAO'
+        const tipo = dente.tipo ?? dente.tipoDente ?? 'OUTRO'
+        if (!mapa[instId]) mapa[instId] = {}
+        mapa[instId][tipo] = (mapa[instId][tipo] ?? 0) + 1
+      }
+      setDisponiveis(mapa)
+    } catch {
+      // silencioso — não bloqueia o form
+    } finally {
+      setCarregandoDisponiveis(false)
+    }
+  }, [])
+
   useEffect(() => {
     carregar(paginaAtual, filtroStatus)
     carregarInstituicoes()
@@ -95,7 +120,9 @@ export default function Solicitacoes() {
   // ── Nova Solicitação ──────────────────────────────────────────────────────────
   const abrirNova = () => {
     formNova.resetFields()
+    setTemItens(false)
     setModalNovaAberto(true)
+    carregarDisponiveis()
   }
 
   const confirmarNova = async () => {
@@ -107,7 +134,7 @@ export default function Solicitacoes() {
       setModalNovaAberto(false)
       carregar(paginaAtual, filtroStatus)
     } catch (err) {
-      if (err?.errorFields) return // erro de validação do form, antd exibe
+      if (err?.errorFields) return
       message.error('Erro ao criar solicitação.')
     } finally {
       setSalvandoNova(false)
@@ -117,6 +144,24 @@ export default function Solicitacoes() {
   const handleNovaSolicitacaoChange = (_, allValues) => {
     const itens = allValues.itens || []
     setTemItens(itens.length > 0)
+  }
+
+  // retorna quantos dentes disponíveis existem para uma inst + tipo
+  const qtdDisponivel = (instituicaoOrigemId, tipoDente) => {
+    if (!instituicaoOrigemId || !tipoDente) return null
+    return disponiveis[instituicaoOrigemId]?.[tipoDente] ?? 0
+  }
+
+  // opções de tipo de dente para um item, enriquecidas com contagem disponível
+  const tiposComDisponivel = (instituicaoOrigemId) => {
+    return TIPO_DENTE_OPTIONS.map((opt) => {
+      const qtd = disponiveis[instituicaoOrigemId]?.[opt.value] ?? 0
+      return {
+        ...opt,
+        label: `${opt.label} (${qtd} disponível${qtd !== 1 ? 'is' : ''})`,
+        disabled: qtd === 0,
+      }
+    })
   }
 
   // ── Aprovar ───────────────────────────────────────────────────────────────────
@@ -220,11 +265,7 @@ export default function Solicitacoes() {
               >
                 Aprovar
               </Button>
-              <Button
-                size="small"
-                danger
-                onClick={() => abrirRecusar(row.id)}
-              >
+              <Button size="small" danger onClick={() => abrirRecusar(row.id)}>
                 Recusar
               </Button>
             </>
@@ -281,7 +322,7 @@ export default function Solicitacoes() {
         okText="Criar"
         cancelText="Cancelar"
         okButtonProps={{ disabled: !temItens }}
-        width={640}
+        width={720}
         destroyOnClose
       >
         <Form
@@ -325,15 +366,20 @@ export default function Solicitacoes() {
             <TextArea rows={3} placeholder="Descreva a justificativa da solicitação" />
           </Form.Item>
 
-          <div className={styles.itensTitulo}>Itens da Solicitação</div>
+          <div className={styles.itensTitulo}>
+            Itens da Solicitação
+            <Tooltip title="Selecione a instituição de origem e o tipo de dente disponível. Apenas tipos com estoque são exibidos.">
+              <InfoCircleOutlined style={{ marginLeft: 6, color: '#6B7280', cursor: 'help' }} />
+            </Tooltip>
+          </div>
 
-          <Form.Item shouldUpdate={(prev, cur) => prev.itens !== cur.itens}>
+          <Form.Item shouldUpdate>
             {() => {
               const itens = formNova.getFieldValue('itens') || []
-              const total = itens.reduce((sum, item) => sum + (Number(item?.quantidade) || 0), 0)
+              const totalDentes = itens.reduce((sum, item) => sum + (Number(item?.quantidade) || 0), 0)
               return (
                 <div className={styles.totalPreview}>
-                  Total de dentes solicitados: <strong>{total}</strong>
+                  Total de dentes solicitados: <strong>{totalDentes}</strong>
                 </div>
               )
             }}
@@ -347,11 +393,6 @@ export default function Solicitacoes() {
                   if (!itens || itens.length === 0) {
                     return Promise.reject(new Error('Adicione ao menos um item.'))
                   }
-                  const tipos = itens.map((item) => item?.tipoDente).filter(Boolean)
-                  const duplicados = tipos.some((tipo, index) => tipos.indexOf(tipo) !== index)
-                  if (duplicados) {
-                    return Promise.reject(new Error('Tipos duplicados não são permitidos.'))
-                  }
                 },
               },
             ]}
@@ -359,40 +400,92 @@ export default function Solicitacoes() {
             {(fields, { add, remove }, { errors }) => (
               <>
                 {fields.map(({ key, name, ...restField }) => (
-                  <div key={key} className={styles.itemLinha}>
-                    <Form.Item
-                      {...restField}
-                      name={[name, 'tipoDente']}
-                      rules={[{ required: true, message: 'Selecione o tipo.' }]}
-                      style={{ flex: 2, marginBottom: 0 }}
-                    >
-                      <CustomSelect opcoes={TIPO_DENTE_OPTIONS} placeholder="Tipo de dente" />
-                    </Form.Item>
+                  <Form.Item shouldUpdate key={key} style={{ marginBottom: 8 }}>
+                    {() => {
+                      const instOrigemId = formNova.getFieldValue(['itens', name, 'instituicaoOrigemId'])
+                      const tipoDente = formNova.getFieldValue(['itens', name, 'tipoDente'])
+                      const qtd = qtdDisponivel(instOrigemId, tipoDente)
 
-                    <Form.Item
-                      {...restField}
-                      name={[name, 'quantidade']}
-                      rules={[{ required: true, message: 'Informe a quantidade.' }]}
-                      style={{ flex: 1, marginBottom: 0 }}
-                    >
-                      <InputNumber min={1} placeholder="Qtd." style={{ width: '100%' }} />
-                    </Form.Item>
+                      return (
+                        <div className={styles.itemLinha}>
+                          {/* Instituição de origem */}
+                          <Form.Item
+                            {...restField}
+                            name={[name, 'instituicaoOrigemId']}
+                            rules={[{ required: true, message: 'Selecione a instituição.' }]}
+                            style={{ flex: 3, marginBottom: 0 }}
+                          >
+                            <Select
+                              showSearch
+                              placeholder="Instituição de origem"
+                              loading={instituicoesCarregando || carregandoDisponiveis}
+                              optionFilterProp="label"
+                              options={instituicoes
+                                .filter((inst) => Object.keys(disponiveis[inst.id] ?? {}).length > 0)
+                                .map((inst) => ({
+                                  value: inst.id,
+                                  label: inst.nome ?? inst.id,
+                                }))
+                              }
+                            />
+                          </Form.Item>
 
-                    <Form.Item
-                      {...restField}
-                      name={[name, 'requisitos']}
-                      style={{ flex: 2, marginBottom: 0 }}
-                    >
-                      <Input placeholder="Requisitos (opcional)" />
-                    </Form.Item>
+                          {/* Tipo de dente (com disponibilidade) */}
+                          <Form.Item
+                            {...restField}
+                            name={[name, 'tipoDente']}
+                            rules={[{ required: true, message: 'Selecione o tipo.' }]}
+                            style={{ flex: 3, marginBottom: 0 }}
+                          >
+                            <Select
+                              placeholder={instOrigemId ? 'Tipo de dente' : 'Selecione a instituição primeiro'}
+                              disabled={!instOrigemId}
+                              options={instOrigemId ? tiposComDisponivel(instOrigemId) : []}
+                            />
+                          </Form.Item>
 
-                    <Button
-                      type="text"
-                      danger
-                      icon={<DeleteOutlined />}
-                      onClick={() => remove(name)}
-                    />
-                  </div>
+                          {/* Quantidade */}
+                          <Form.Item
+                            {...restField}
+                            name={[name, 'quantidade']}
+                            rules={[
+                              { required: true, message: 'Informe a quantidade.' },
+                              {
+                                validator: (_, val) =>
+                                  qtd !== null && val > qtd
+                                    ? Promise.reject(new Error(`Máx. ${qtd} disponíveis`))
+                                    : Promise.resolve(),
+                              },
+                            ]}
+                            style={{ flex: 1, marginBottom: 0 }}
+                          >
+                            <InputNumber
+                              min={1}
+                              max={qtd ?? undefined}
+                              placeholder="Qtd."
+                              style={{ width: '100%' }}
+                            />
+                          </Form.Item>
+
+                          {/* Requisitos */}
+                          <Form.Item
+                            {...restField}
+                            name={[name, 'requisitos']}
+                            style={{ flex: 2, marginBottom: 0 }}
+                          >
+                            <Input placeholder="Requisitos (opcional)" />
+                          </Form.Item>
+
+                          <Button
+                            type="text"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={() => remove(name)}
+                          />
+                        </div>
+                      )
+                    }}
+                  </Form.Item>
                 ))}
 
                 <Form.Item>
