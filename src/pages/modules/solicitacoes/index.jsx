@@ -65,11 +65,6 @@ export default function Solicitacoes() {
     }
   }, [filtroStatus])
 
-  useEffect(() => {
-    carregar(paginaAtual, filtroStatus)
-    carregarInstituicoes()
-  }, [carregar, carregarInstituicoes, paginaAtual, filtroStatus])
-
   const carregarInstituicoes = useCallback(async () => {
     setInstituicoesCarregando(true)
     try {
@@ -82,6 +77,11 @@ export default function Solicitacoes() {
       setInstituicoesCarregando(false)
     }
   }, [])
+
+  useEffect(() => {
+    carregar(paginaAtual, filtroStatus)
+    carregarInstituicoes()
+  }, [carregar, carregarInstituicoes, paginaAtual, filtroStatus])
 
   const handleFiltroStatus = (valor) => {
     setFiltroStatus(valor)
