@@ -1,7 +1,8 @@
+import { forwardRef } from 'react'
 import { Input as AntInput } from 'antd'
 import styles from './styles.module.css'
 
-export function Textarea({ rotulo, erro, required, maxCaracteres, ...props }) {
+export const Textarea = forwardRef(({ rotulo, erro, required, maxCaracteres, ...props }, ref) => {
   return (
     <div className={styles.wrapper}>
       {rotulo && (
@@ -11,6 +12,7 @@ export function Textarea({ rotulo, erro, required, maxCaracteres, ...props }) {
         </label>
       )}
       <AntInput.TextArea
+        ref={ref}
         status={erro ? 'error' : ''}
         showCount={!!maxCaracteres}
         maxLength={maxCaracteres}
@@ -20,4 +22,4 @@ export function Textarea({ rotulo, erro, required, maxCaracteres, ...props }) {
       {erro && <span className={styles.erro}>{erro}</span>}
     </div>
   )
-}
+})
