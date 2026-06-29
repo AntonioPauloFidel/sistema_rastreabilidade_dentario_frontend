@@ -2,7 +2,14 @@
   "name": "sistema-rastreabilidade-dentario-frontend",
   "version": "1.0.0",
   "description": "Frontend do sistema de biobanco odontológico SIRDE — rastreamento, gestão e cessão de dentes.",
-  "keywords": ["biobanco", "dentes", "saude", "react", "vite", "antdesign"],
+  "keywords": [
+    "biobanco",
+    "dentes",
+    "saude",
+    "react",
+    "vite",
+    "antdesign"
+  ],
   "contributors": [
     "Antonio Paulo Fidel <antoniopfdl.fidel@gmail.com>",
     "Savio <saviotrapz@gmail.com>",
@@ -23,11 +30,15 @@
     "@tailwindcss/vite": "^4.3.0",
     "antd": "^6.4.3",
     "axios": "^1.17.0",
+    "dayjs": "^1.11.21",
     "lucide-react": "^1.21.0",
+    "qrcode.react": "^4.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-hook-form": "^7.78.0",
+    "react-input-mask": "^2.0.4",
     "react-router-dom": "^7.17.0",
+    "recharts": "^3.9.0",
     "tailwindcss": "^4.3.0",
     "zod": "^4.4.3"
   },

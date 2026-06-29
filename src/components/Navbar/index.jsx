@@ -18,27 +18,32 @@ import {
   MenuUnfoldOutlined,
 } from '@ant-design/icons'
 import { useAuth } from '../../hooks/useAuth'
+import { usePermissao } from '../../hooks/usePermissao'
 import dentePng from '../../assets/Logo.png'
 import styles from './styles.module.css'
 
+const GESTAO = ['ADMIN', 'BIOBANCO_GESTOR']
+const OPERACAO = ['ADMIN', 'BIOBANCO_GESTOR', 'BIOBANCO_OPERADOR']
+
 const itens = [
-  { path: '/home',         label: 'Home',         icon: <DashboardOutlined /> },
-  { path: '/dentes',       label: 'Dentes',       icon: <ExperimentOutlined /> },
-  { path: '/doadores',     label: 'Doadores',     icon: <HeartOutlined /> },
-  { path: '/remessas',     label: 'Remessas',     icon: <SendOutlined /> },
-  { path: '/solicitacoes', label: 'Solicitações', icon: <FileTextOutlined /> },
-  { path: '/cessoes',      label: 'Cessões',      icon: <SwapOutlined /> },
-  { path: '/instituicoes', label: 'Instituições', icon: <BankOutlined /> },
-  { path: '/clinicas',     label: 'Clínicas',     icon: <MedicineBoxOutlined /> },
-  { path: '/dentistas',    label: 'Dentistas',    icon: <UserOutlined /> },
-  { path: '/locais',       label: 'Locais',       icon: <EnvironmentOutlined /> },
-  { path: '/usuarios',     label: 'Usuários',     icon: <TeamOutlined /> },
-  { path: '/auditoria',    label: 'Auditoria',    icon: <AuditOutlined /> },
+  { path: '/home',         label: 'Home',         icon: <DashboardOutlined />,  perfis: [] },
+  { path: '/dentes',       label: 'Dentes',       icon: <ExperimentOutlined />, perfis: OPERACAO },
+  { path: '/doadores',     label: 'Doadores',     icon: <HeartOutlined />,      perfis: OPERACAO },
+  { path: '/remessas',     label: 'Remessas',     icon: <SendOutlined />,       perfis: OPERACAO },
+  { path: '/solicitacoes', label: 'Solicitações', icon: <FileTextOutlined />,   perfis: [] },
+  { path: '/cessoes',      label: 'Cessões',      icon: <SwapOutlined />,       perfis: GESTAO },
+  { path: '/instituicoes', label: 'Instituições', icon: <BankOutlined />,       perfis: GESTAO },
+  { path: '/clinicas',     label: 'Clínicas',     icon: <MedicineBoxOutlined />, perfis: GESTAO },
+  { path: '/dentistas',    label: 'Dentistas',    icon: <UserOutlined />,       perfis: GESTAO },
+  { path: '/locais',       label: 'Locais',       icon: <EnvironmentOutlined />, perfis: OPERACAO },
+  { path: '/usuarios',     label: 'Usuários',     icon: <TeamOutlined />,       perfis: ['ADMIN'] },
+  { path: '/auditoria',    label: 'Auditoria',    icon: <AuditOutlined />,      perfis: ['ADMIN', 'BIOBANCO_GESTOR', 'AUDITOR'] },
 ]
 
 export function Navbar() {
   const [collapsed, setCollapsed] = useState(false)
   const { usuario, logout } = useAuth()
+  const { pode } = usePermissao()
   const navigate = useNavigate()
 
   async function handleLogout() {
@@ -65,19 +70,21 @@ export function Navbar() {
 
       {/* Menu */}
       <nav className={styles.nav}>
-        {itens.map(({ path, label, icon }) => (
-          <NavLink
-            key={path}
-            to={path}
-            className={({ isActive }) =>
-              `${styles.item} ${isActive ? styles.active : ''}`
-            }
-            title={collapsed ? label : undefined}
-          >
-            <span className={styles.itemIcon}>{icon}</span>
-            {!collapsed && <span className={styles.itemLabel}>{label}</span>}
-          </NavLink>
-        ))}
+        {itens
+          .filter(({ perfis }) => pode(perfis))
+          .map(({ path, label, icon }) => (
+            <NavLink
+              key={path}
+              to={path}
+              className={({ isActive }) =>
+                `${styles.item} ${isActive ? styles.active : ''}`
+              }
+              title={collapsed ? label : undefined}
+            >
+              <span className={styles.itemIcon}>{icon}</span>
+              {!collapsed && <span className={styles.itemLabel}>{label}</span>}
+            </NavLink>
+          ))}
       </nav>
 
       {/* Perfil + logout */}

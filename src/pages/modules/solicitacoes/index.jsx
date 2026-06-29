@@ -1,12 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
-  Table, Tag, Button, Modal, Form, Input, Select, InputNumber, message, Space,
+  Table, Tag, Button, Modal, Form, Input, InputNumber, message, Space,
 } from 'antd'
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { PageHeader } from '../../../components/PageHeader'
 import { solicitacoesService } from '../../../services/solicitacoes/solicitacoes.service'
+import { instituicoesService } from '../../../services/instituicoes/instituicoes.service'
 import { STATUS_SOLICITACAO, FINALIDADE, TIPO_DENTE, toSelectOptions } from '../../../constants/enums'
+import { Select as CustomSelect } from '../../../components/Select'
 import styles from './styles.module.css'
 
 const { TextArea } = Input
@@ -31,6 +33,9 @@ export default function Solicitacoes() {
   const [modalNovaAberto, setModalNovaAberto] = useState(false)
   const [salvandoNova, setSalvandoNova] = useState(false)
   const [formNova] = Form.useForm()
+  const [instituicoes, setInstituicoes] = useState([])
+  const [instituicoesCarregando, setInstituicoesCarregando] = useState(false)
+  const [temItens, setTemItens] = useState(false)
 
   // Modal aprovar
   const [modalAprovarAberto, setModalAprovarAberto] = useState(false)
@@ -44,7 +49,7 @@ export default function Solicitacoes() {
   const [idRecusar, setIdRecusar] = useState(null)
   const [formRecusar] = Form.useForm()
 
-  const carregar = async (pagina = 1, status = filtroStatus) => {
+  const carregar = useCallback(async (pagina = 1, status = filtroStatus) => {
     setCarregando(true)
     try {
       const params = { page: pagina, limit: 10 }
@@ -58,21 +63,33 @@ export default function Solicitacoes() {
     } finally {
       setCarregando(false)
     }
-  }
+  }, [filtroStatus])
 
   useEffect(() => {
     carregar(paginaAtual, filtroStatus)
+    carregarInstituicoes()
+  }, [carregar, carregarInstituicoes, paginaAtual, filtroStatus])
+
+  const carregarInstituicoes = useCallback(async () => {
+    setInstituicoesCarregando(true)
+    try {
+      const res = await instituicoesService.listar({ page: 1, limit: 200 })
+      const payload = res.data
+      setInstituicoes(payload.data ?? payload ?? [])
+    } catch {
+      message.error('Erro ao carregar instituições.')
+    } finally {
+      setInstituicoesCarregando(false)
+    }
   }, [])
 
   const handleFiltroStatus = (valor) => {
     setFiltroStatus(valor)
     setPaginaAtual(1)
-    carregar(1, valor)
   }
 
   const handlePagina = (pagina) => {
     setPaginaAtual(pagina)
-    carregar(pagina, filtroStatus)
   }
 
   // ── Nova Solicitação ──────────────────────────────────────────────────────────
@@ -95,6 +112,11 @@ export default function Solicitacoes() {
     } finally {
       setSalvandoNova(false)
     }
+  }
+
+  const handleNovaSolicitacaoChange = (_, allValues) => {
+    const itens = allValues.itens || []
+    setTemItens(itens.length > 0)
   }
 
   // ── Aprovar ───────────────────────────────────────────────────────────────────
@@ -258,16 +280,30 @@ export default function Solicitacoes() {
         confirmLoading={salvandoNova}
         okText="Criar"
         cancelText="Cancelar"
+        okButtonProps={{ disabled: !temItens }}
         width={640}
         destroyOnClose
       >
-        <Form form={formNova} layout="vertical" style={{ marginTop: 16 }}>
+        <Form
+          form={formNova}
+          layout="vertical"
+          style={{ marginTop: 16 }}
+          onValuesChange={handleNovaSolicitacaoChange}
+        >
           <Form.Item
             name="instituicaoId"
-            label="ID da Instituição"
-            rules={[{ required: true, message: 'Informe o ID da instituição.' }]}
+            label="Instituição solicitante"
+            rules={[{ required: true, message: 'Informe a instituição solicitante.' }]}
           >
-            <Input placeholder="UUID da instituição" />
+            <CustomSelect
+              showSearch
+              placeholder="Selecione a instituição"
+              loading={instituicoesCarregando}
+              opcoes={instituicoes.map((inst) => ({ value: inst.id, label: inst.nome ?? inst.id }))}
+              filterOption={(input, option) =>
+                option?.label.toLowerCase().includes(input.toLowerCase())
+              }
+            />
           </Form.Item>
 
           <Form.Item
@@ -291,6 +327,18 @@ export default function Solicitacoes() {
 
           <div className={styles.itensTitulo}>Itens da Solicitação</div>
 
+          <Form.Item shouldUpdate={(prev, cur) => prev.itens !== cur.itens}>
+            {() => {
+              const itens = formNova.getFieldValue('itens') || []
+              const total = itens.reduce((sum, item) => sum + (Number(item?.quantidade) || 0), 0)
+              return (
+                <div className={styles.totalPreview}>
+                  Total de dentes solicitados: <strong>{total}</strong>
+                </div>
+              )
+            }}
+          </Form.Item>
+
           <Form.List
             name="itens"
             rules={[
@@ -298,6 +346,11 @@ export default function Solicitacoes() {
                 validator: async (_, itens) => {
                   if (!itens || itens.length === 0) {
                     return Promise.reject(new Error('Adicione ao menos um item.'))
+                  }
+                  const tipos = itens.map((item) => item?.tipoDente).filter(Boolean)
+                  const duplicados = tipos.some((tipo, index) => tipos.indexOf(tipo) !== index)
+                  if (duplicados) {
+                    return Promise.reject(new Error('Tipos duplicados não são permitidos.'))
                   }
                 },
               },
@@ -313,7 +366,7 @@ export default function Solicitacoes() {
                       rules={[{ required: true, message: 'Selecione o tipo.' }]}
                       style={{ flex: 2, marginBottom: 0 }}
                     >
-                      <Select options={TIPO_DENTE_OPTIONS} placeholder="Tipo de dente" />
+                      <CustomSelect opcoes={TIPO_DENTE_OPTIONS} placeholder="Tipo de dente" />
                     </Form.Item>
 
                     <Form.Item

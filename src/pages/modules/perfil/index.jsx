@@ -1,8 +1,10 @@
-import { useState } from 'react'
-import { Form, Input, Button, message, Divider } from 'antd'
+import { useEffect, useRef, useState } from 'react'
+import { Form, Input, Button, message, Divider, Spin } from 'antd'
+import { SearchOutlined } from '@ant-design/icons'
 import { PageHeader } from '../../../components/PageHeader'
 import { useAuth } from '../../../hooks/useAuth'
 import { authService } from '../../../services/auth/auth.service'
+import { enderecoService } from '../../../services/enderecos/enderecos.service'
 import styles from './styles.module.css'
 
 function getIniciais(nome) {
@@ -21,6 +23,12 @@ export default function Perfil() {
   const [formDados] = Form.useForm()
   const [salvandoDados, setSalvandoDados] = useState(false)
 
+  const [formEndereco] = Form.useForm()
+  const [salvandoEndereco, setSalvandoEndereco] = useState(false)
+  const [buscandoCep, setBuscandoCep] = useState(false)
+  const [cepErro, setCepErro] = useState(null)
+  const ultimoCepBuscado = useRef('')
+
   const [formSenha] = Form.useForm()
   const [salvandoSenha, setSalvandoSenha] = useState(false)
 
@@ -35,6 +43,84 @@ export default function Perfil() {
       setSalvandoDados(false)
     }
   }
+
+  const buscarEnderecoPorCep = async (cep) => {
+    const cepLimpo = cep.replace(/\D/g, '')
+    if (cepLimpo.length !== 8 || ultimoCepBuscado.current === cepLimpo) return
+
+    ultimoCepBuscado.current = cepLimpo
+    setCepErro(null)
+    setBuscandoCep(true)
+    try {
+      const res = await enderecoService.buscarPorCep(cepLimpo)
+      const payload = res.data
+      const endereco = payload?.data ?? payload
+      if (!endereco || !endereco.cep) {
+        setCepErro('CEP não encontrado.')
+        return
+      }
+
+      formEndereco.setFieldsValue({
+        logradouro: endereco.logradouro ?? endereco.rua ?? '',
+        bairro: endereco.bairro ?? '',
+        cidade: endereco.cidade ?? endereco.localidade ?? '',
+        uf: endereco.uf ?? endereco.estado ?? '',
+      })
+    } catch (err) {
+      if (err?.response?.status === 404) {
+        setCepErro('CEP não encontrado.')
+      } else {
+        setCepErro('CEP inválido ou erro na busca.')
+      }
+    } finally {
+      setBuscandoCep(false)
+    }
+  }
+
+  const handleCepChange = (_, allValues) => {
+    const cep = allValues?.cep ?? ''
+    const cepLimpo = cep.replace(/\D/g, '')
+    setCepErro(null)
+    if (cepLimpo.length === 8) {
+      buscarEnderecoPorCep(cepLimpo)
+    }
+  }
+
+  const handleSalvarEndereco = async (valores) => {
+    setSalvandoEndereco(true)
+    try {
+      await enderecoService.salvarMe(valores)
+      message.success('Endereço salvo com sucesso!')
+    } catch (err) {
+      message.error(err?.response?.data?.message ?? 'Erro ao salvar o endereço.')
+    } finally {
+      setSalvandoEndereco(false)
+    }
+  }
+
+  useEffect(() => {
+    const carregarEndereco = async () => {
+      try {
+        const res = await enderecoService.buscarMe()
+        const endereco = res.data?.data ?? res.data
+        if (endereco) {
+          formEndereco.setFieldsValue({
+            cep: endereco.cep ?? '',
+            logradouro: endereco.logradouro ?? '',
+            numero: endereco.numero ?? '',
+            complemento: endereco.complemento ?? '',
+            bairro: endereco.bairro ?? '',
+            cidade: endereco.cidade ?? '',
+            uf: endereco.uf ?? '',
+          })
+        }
+      } catch {
+        // ignorar carga inicial de endereço
+      }
+    }
+
+    carregarEndereco()
+  }, [formEndereco])
 
   async function handleAlterarSenha(valores) {
     setSalvandoSenha(true)
@@ -101,6 +187,106 @@ export default function Perfil() {
                 style={{ background: '#038C5A', borderColor: '#038C5A' }}
               >
                 Salvar alterações
+              </Button>
+            </Form.Item>
+          </Form>
+        </div>
+
+        <div className={styles.secao}>
+          <h3 className={styles.secaoTitulo}>Endereço</h3>
+          <Form
+            form={formEndereco}
+            layout="vertical"
+            onFinish={handleSalvarEndereco}
+            onValuesChange={handleCepChange}
+          >
+            <Form.Item
+              name="cep"
+              label="CEP"
+              rules={[
+                { required: true, message: 'Informe o CEP' },
+                { pattern: /^\d{5}-\d{3}$/, message: 'CEP inválido' },
+              ]}
+              validateStatus={cepErro ? 'error' : ''}
+              help={cepErro}
+            >
+              <Input.Search
+                placeholder="00000-000"
+                enterButton={<SearchOutlined />}
+                loading={buscandoCep}
+                onSearch={(value) => buscarEnderecoPorCep(value)}
+                onChange={(event) => {
+                  const value = event.target.value.replace(/[^\d]/g, '')
+                  const formatted = value.replace(/(\d{5})(\d{1,3})/, '$1-$2')
+                  formEndereco.setFieldsValue({ cep: formatted })
+                }}
+                maxLength={9}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="logradouro"
+              label="Logradouro"
+              rules={[{ required: true, message: 'Informe o logradouro' }]}
+            >
+              <Input disabled={buscandoCep} suffix={buscandoCep ? <Spin size="small" /> : null} />
+            </Form.Item>
+
+            <div className={styles.duasColunas}>
+              <Form.Item
+                name="numero"
+                label="Número"
+                rules={[{ required: true, message: 'Informe o número' }]}
+                style={{ flex: 1 }}
+              >
+                <Input />
+              </Form.Item>
+
+              <Form.Item
+                name="complemento"
+                label="Complemento"
+                style={{ flex: 1 }}
+              >
+                <Input />
+              </Form.Item>
+            </div>
+
+            <Form.Item
+              name="bairro"
+              label="Bairro"
+              rules={[{ required: true, message: 'Informe o bairro' }]}
+            >
+              <Input disabled={buscandoCep} />
+            </Form.Item>
+
+            <div className={styles.duasColunas}>
+              <Form.Item
+                name="cidade"
+                label="Cidade"
+                rules={[{ required: true, message: 'Informe a cidade' }]}
+                style={{ flex: 2 }}
+              >
+                <Input disabled={buscandoCep} />
+              </Form.Item>
+
+              <Form.Item
+                name="uf"
+                label="UF"
+                rules={[{ required: true, message: 'Informe a UF' }]}
+                style={{ flex: 1 }}
+              >
+                <Input maxLength={2} disabled={buscandoCep} />
+              </Form.Item>
+            </div>
+
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={salvandoEndereco}
+                style={{ background: '#038C5A', borderColor: '#038C5A' }}
+              >
+                Salvar endereço
               </Button>
             </Form.Item>
           </Form>
