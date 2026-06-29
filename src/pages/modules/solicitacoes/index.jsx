@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   Table, Tag, Button, Modal, Form, Input, InputNumber, message, Space,
 } from 'antd'
@@ -36,7 +36,6 @@ export default function Solicitacoes() {
   const [instituicoes, setInstituicoes] = useState([])
   const [instituicoesCarregando, setInstituicoesCarregando] = useState(false)
   const [temItens, setTemItens] = useState(false)
-  const [totalDentes, setTotalDentes] = useState(0)
 
   // Modal aprovar
   const [modalAprovarAberto, setModalAprovarAberto] = useState(false)
@@ -50,7 +49,7 @@ export default function Solicitacoes() {
   const [idRecusar, setIdRecusar] = useState(null)
   const [formRecusar] = Form.useForm()
 
-  const carregar = async (pagina = 1, status = filtroStatus) => {
+  const carregar = useCallback(async (pagina = 1, status = filtroStatus) => {
     setCarregando(true)
     try {
       const params = { page: pagina, limit: 10 }
@@ -64,14 +63,14 @@ export default function Solicitacoes() {
     } finally {
       setCarregando(false)
     }
-  }
+  }, [filtroStatus])
 
   useEffect(() => {
     carregar(paginaAtual, filtroStatus)
     carregarInstituicoes()
-  }, [])
+  }, [carregar, carregarInstituicoes, paginaAtual, filtroStatus])
 
-  const carregarInstituicoes = async () => {
+  const carregarInstituicoes = useCallback(async () => {
     setInstituicoesCarregando(true)
     try {
       const res = await instituicoesService.listar({ page: 1, limit: 200 })
@@ -82,17 +81,15 @@ export default function Solicitacoes() {
     } finally {
       setInstituicoesCarregando(false)
     }
-  }
+  }, [])
 
   const handleFiltroStatus = (valor) => {
     setFiltroStatus(valor)
     setPaginaAtual(1)
-    carregar(1, valor)
   }
 
   const handlePagina = (pagina) => {
     setPaginaAtual(pagina)
-    carregar(pagina, filtroStatus)
   }
 
   // ── Nova Solicitação ──────────────────────────────────────────────────────────
@@ -119,9 +116,7 @@ export default function Solicitacoes() {
 
   const handleNovaSolicitacaoChange = (_, allValues) => {
     const itens = allValues.itens || []
-    const total = itens.reduce((sum, item) => sum + (Number(item?.quantidade) || 0), 0)
     setTemItens(itens.length > 0)
-    setTotalDentes(total)
   }
 
   // ── Aprovar ───────────────────────────────────────────────────────────────────
