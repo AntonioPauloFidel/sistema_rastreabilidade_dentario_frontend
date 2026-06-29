@@ -5,6 +5,7 @@ import {
 } from 'antd'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 import { dentesService } from '../../../services/dentes/dentes.service'
+import QRCodeDente from '../../../components/QRCodeDente'
 import {
   STATUS_DENTE, TIPO_DENTE, CONDICAO_DENTE, toSelectOptions,
 } from '../../../constants/enums'
@@ -142,6 +143,12 @@ export default function DenteDetalhe() {
           </Descriptions>
         ) : null}
       </Card>
+
+      {dente && (
+        <Card title={<span className={styles.cardTitulo}>QR Code do Dente</span>} className={styles.card}>
+          <QRCodeDente codigo={dente.codigoRastreio ?? dente.id} tamanho={190} />
+        </Card>
+      )}
 
       <Card
         title={<span className={styles.cardTitulo}>Histórico de Movimentações</span>}
