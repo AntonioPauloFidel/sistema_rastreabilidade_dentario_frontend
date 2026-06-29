@@ -17,3 +17,61 @@
   color: #038C5A;
   letter-spacing: 0.5px;
 }
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.required {
+  color: #ff4d4f;
+  margin-left: 0.25rem;
+}
+
+.erro {
+  color: #ff4d4f;
+  font-size: 0.85rem;
+}
+
+.alerta {
+  margin-bottom: 1rem;
+}
+
+.acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.carregando {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+.sucessoContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: #f6f6f6;
+  border-radius: 8px;
+  text-align: center;
+}
