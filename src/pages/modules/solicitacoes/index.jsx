@@ -418,15 +418,12 @@ export default function Solicitacoes() {
                             <Select
                               showSearch
                               placeholder="Instituição de origem"
-                              loading={instituicoesCarregando || carregandoDisponiveis}
+                              loading={instituicoesCarregando}
                               optionFilterProp="label"
-                              options={instituicoes
-                                .filter((inst) => Object.keys(disponiveis[inst.id] ?? {}).length > 0)
-                                .map((inst) => ({
-                                  value: inst.id,
-                                  label: inst.nome ?? inst.id,
-                                }))
-                              }
+                              options={instituicoes.map((inst) => ({
+                                value: inst.id,
+                                label: inst.nome ?? inst.id,
+                              }))}
                             />
                           </Form.Item>
 
