@@ -1,7 +1,8 @@
+import { forwardRef } from 'react'
 import { Select as AntSelect } from 'antd'
 import styles from './styles.module.css'
 
-export function Select({ rotulo, opcoes = [], erro, required, placeholder = 'Selecione...', ...props }) {
+export const Select = forwardRef(({ rotulo, opcoes = [], erro, required, placeholder = 'Selecione...', ...props }, ref) => {
   return (
     <div className={styles.wrapper}>
       {rotulo && (
@@ -11,6 +12,7 @@ export function Select({ rotulo, opcoes = [], erro, required, placeholder = 'Sel
         </label>
       )}
       <AntSelect
+        ref={ref}
         placeholder={placeholder}
         status={erro ? 'error' : ''}
         style={{ width: '100%' }}
@@ -20,4 +22,4 @@ export function Select({ rotulo, opcoes = [], erro, required, placeholder = 'Sel
       {erro && <span className={styles.erro}>{erro}</span>}
     </div>
   )
-}
+})
