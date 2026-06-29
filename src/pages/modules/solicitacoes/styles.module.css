@@ -38,3 +38,9 @@
   align-items: flex-start;
   margin-bottom: 10px;
 }
+
+.totalPreview {
+  font-size: 13px;
+  color: #4b5563;
+  margin-bottom: 10px;
+}
