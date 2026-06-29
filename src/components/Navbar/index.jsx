@@ -24,20 +24,21 @@ import styles from './styles.module.css'
 
 const GESTAO = ['ADMIN', 'BIOBANCO_GESTOR']
 const OPERACAO = ['ADMIN', 'BIOBANCO_GESTOR', 'BIOBANCO_OPERADOR']
+const SOLICITANTE = ['ADMIN', 'BIOBANCO_GESTOR', 'INSTITUICAO_SOLICITANTE']
 
 const itens = [
-  { path: '/home',         label: 'Home',         icon: <DashboardOutlined />,  perfis: [] },
-  { path: '/dentes',       label: 'Dentes',       icon: <ExperimentOutlined />, perfis: OPERACAO },
-  { path: '/doadores',     label: 'Doadores',     icon: <HeartOutlined />,      perfis: OPERACAO },
-  { path: '/remessas',     label: 'Remessas',     icon: <SendOutlined />,       perfis: OPERACAO },
-  { path: '/solicitacoes', label: 'Solicitações', icon: <FileTextOutlined />,   perfis: [] },
-  { path: '/cessoes',      label: 'Cessões',      icon: <SwapOutlined />,       perfis: GESTAO },
-  { path: '/instituicoes', label: 'Instituições', icon: <BankOutlined />,       perfis: GESTAO },
+  { path: '/home',         label: 'Home',         icon: <DashboardOutlined />,   perfis: [] },
+  { path: '/dentes',       label: 'Dentes',       icon: <ExperimentOutlined />,  perfis: OPERACAO },
+  { path: '/doadores',     label: 'Doadores',     icon: <HeartOutlined />,       perfis: OPERACAO },
+  { path: '/remessas',     label: 'Remessas',     icon: <SendOutlined />,        perfis: OPERACAO },
+  { path: '/solicitacoes', label: 'Solicitações', icon: <FileTextOutlined />,    perfis: [] },
+  { path: '/cessoes',      label: 'Cessões',      icon: <SwapOutlined />,        perfis: SOLICITANTE },
+  { path: '/instituicoes', label: 'Instituições', icon: <BankOutlined />,        perfis: GESTAO },
   { path: '/clinicas',     label: 'Clínicas',     icon: <MedicineBoxOutlined />, perfis: GESTAO },
-  { path: '/dentistas',    label: 'Dentistas',    icon: <UserOutlined />,       perfis: GESTAO },
+  { path: '/dentistas',    label: 'Dentistas',    icon: <UserOutlined />,        perfis: GESTAO },
   { path: '/locais',       label: 'Locais',       icon: <EnvironmentOutlined />, perfis: OPERACAO },
-  { path: '/usuarios',     label: 'Usuários',     icon: <TeamOutlined />,       perfis: ['ADMIN'] },
-  { path: '/auditoria',    label: 'Auditoria',    icon: <AuditOutlined />,      perfis: ['ADMIN', 'BIOBANCO_GESTOR', 'AUDITOR'] },
+  { path: '/usuarios',     label: 'Usuários',     icon: <TeamOutlined />,        perfis: ['ADMIN'] },
+  { path: '/auditoria',    label: 'Auditoria',    icon: <AuditOutlined />,       perfis: ['ADMIN', 'BIOBANCO_GESTOR', 'AUDITOR'] },
 ]
 
 export function Navbar() {

@@ -49,8 +49,9 @@ export function usePermissao() {
   const eAdmin = pode('ADMIN')
   const eGestor = pode('ADMIN', 'BIOBANCO_GESTOR')
   const eOperador = pode('ADMIN', 'BIOBANCO_GESTOR', 'BIOBANCO_OPERADOR')
+  const eInstituicao = pode('INSTITUICAO_SOLICITANTE')
 
-  return { pode, perfil, perfis, eAdmin, eGestor, eOperador }
+  return { pode, perfil, perfis, eAdmin, eGestor, eOperador, eInstituicao }
 }
 
 export default usePermissao
