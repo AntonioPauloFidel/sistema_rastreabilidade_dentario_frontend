@@ -44,12 +44,8 @@ export default function Home() {
   const navigate = useNavigate()
   const [resumo, setResumo] = useState(null)
   const [auditoria, setAuditoria] = useState([])
-  const [dadosGraficoStatus, setDadosGraficoStatus] = useState([])
-  const [dadosGraficoTipo, setDadosGraficoTipo] = useState([])
-  const [dadosGraficoMensal, setDadosGraficoMensal] = useState([])
   const [carregando, setCarregando] = useState(true)
   const [carregandoAuditoria, setCarregandoAuditoria] = useState(false)
-  const [carregandoGraficos, setCarregandoGraficos] = useState(true)
   const [erro, setErro] = useState(null)
 
   const podeVerAuditoria = PERFIS_AUDITORIA.includes(usuario?.perfil)
@@ -68,34 +64,6 @@ export default function Home() {
     carregar()
   }, [])
 
-  useEffect(() => {
-    async function carregarGraficos() {
-      try {
-        setCarregandoGraficos(true)
-        const [statusRes, tipoRes, mensalRes] = await Promise.all([
-          dashboardService.graficoStatus().catch(() => ({ data: [] })),
-          dashboardService.graficoTipo?.().catch(() => ({ data: [] })) ?? Promise.resolve({ data: [] }),
-          dashboardService.graficoMensal().catch(() => ({ data: [] })),
-        ])
-
-        const status = statusRes.data?.data ?? statusRes.data?.dados ?? statusRes.data ?? []
-        const tipo = tipoRes.data?.data ?? tipoRes.data?.dados ?? tipoRes.data ?? []
-        const mensal = mensalRes.data?.data ?? mensalRes.data?.dados ?? mensalRes.data ?? []
-
-        setDadosGraficoStatus(Array.isArray(status) ? status : [])
-        setDadosGraficoTipo(Array.isArray(tipo) ? tipo : [])
-        setDadosGraficoMensal(Array.isArray(mensal) ? mensal : [])
-      } catch {
-        setDadosGraficoStatus([])
-        setDadosGraficoTipo([])
-        setDadosGraficoMensal([])
-      } finally {
-        setCarregandoGraficos(false)
-      }
-    }
-
-    carregarGraficos()
-  }, [])
 
   useEffect(() => {
     if (!podeVerAuditoria) return
@@ -107,6 +75,19 @@ export default function Home() {
   }, [podeVerAuditoria])
 
   const primeiroNome = usuario?.nome?.split(' ')[0] ?? 'Usuário'
+
+  const dadosGraficoStatus = Object.entries(resumo?.dentes?.por_status ?? {}).map(([status, valor]) => ({ status, valor }))
+
+  const dadosGraficoTipo = [
+    { tipo: 'Pendentes', valor: resumo?.solicitacoes?.pendentes ?? 0 },
+    { tipo: 'Aprovadas', valor: resumo?.solicitacoes?.aprovadas ?? 0 },
+    { tipo: 'Recusadas', valor: resumo?.solicitacoes?.recusadas ?? 0 },
+  ]
+
+  const dadosGraficoMensal = [
+    { mes: 'Total', valor: resumo?.remessas?.total ?? 0 },
+    { mes: 'Último mês', valor: resumo?.remessas?.ultimo_mes ?? 0 },
+  ]
 
   const cards = [
     {
@@ -169,34 +150,33 @@ export default function Home() {
         <GraficoPizza
           dados={dadosGraficoStatus}
           cores={{
-            ARMAZENADO: '#038C5A',
-            CEDIDO: '#05F29B',
-            EM_TRIAGEM: '#0EA5E9',
-            DESCARTADO: '#F59E0B',
-            TRANSFERIDO: '#8B5CF6',
+            ATIVO: '#038C5A',
+            INATIVO: '#05F29B',
+            ARMAZENADO: '#0EA5E9',
+            CEDIDO: '#F59E0B',
+            EM_TRIAGEM: '#8B5CF6',
           }}
           altura={300}
           titulo="Dentes por status"
-          carregando={carregandoGraficos}
+          carregando={carregando}
         />
         <GraficoBarras
           dados={dadosGraficoTipo}
           cores={{
-            MOLAR: '#038C5A',
-            INCISIVO: '#05F29B',
-            CANINO: '#0EA5E9',
-            PREMOLAR: '#F59E0B',
+            Pendentes: '#dc2626',
+            Aprovadas: '#059669',
+            Recusadas: '#d97706',
           }}
           altura={300}
-          titulo="Dentes por tipo"
-          carregando={carregandoGraficos}
+          titulo="Solicitações por status"
+          carregando={carregando}
         />
         <div className={styles.graficoLinhaWrapper}>
           <GraficoLinha
             dados={dadosGraficoMensal}
             altura={300}
-            titulo="Cessões por mês"
-            carregando={carregandoGraficos}
+            titulo="Remessas"
+            carregando={carregando}
           />
         </div>
       </div>
