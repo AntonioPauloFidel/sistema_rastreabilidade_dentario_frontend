@@ -43,9 +43,14 @@ export default function DenteDetalhe() {
       setErro(null)
       try {
         const res = await dentesService.buscarPorId(id)
-        setDente(res.data?.dente ?? res.data)
-      } catch {
-        setErro('Não foi possível carregar os dados do dente.')
+        const payload = res.data
+        const dente = Array.isArray(payload)
+          ? payload[0]?.dente ?? payload[0]
+          : payload?.dente ?? payload?.data ?? payload
+        setDente(dente ?? null)
+      } catch (err) {
+        const mensagem = err.response?.data?.message ?? err.response?.data?.mensagem
+        setErro(mensagem ? `Erro ao carregar o dente: ${mensagem}` : 'Não foi possível carregar os dados do dente.')
       } finally {
         setCarregando(false)
       }
@@ -56,7 +61,7 @@ export default function DenteDetalhe() {
   useEffect(() => {
     setCarregandoMov(true)
     dentesService.movimentacoes(id)
-      .then((res) => setMovimentacoes(res.data?.data ?? res.data ?? []))
+      .then((res) => setMovimentacoes(res.data?.data ?? res.data?.movimentacoes ?? res.data ?? []))
       .catch(() => setMovimentacoes([]))
       .finally(() => setCarregandoMov(false))
   }, [id])
@@ -68,9 +73,13 @@ export default function DenteDetalhe() {
       setModalStatus(false)
       formStatus.resetFields()
       const res = await dentesService.buscarPorId(id)
-      setDente(res.data?.dente ?? res.data)
+      const payload = res.data
+      const dente = Array.isArray(payload)
+        ? payload[0]?.dente ?? payload[0]
+        : payload?.dente ?? payload?.data ?? payload
+      setDente(dente ?? null)
       const resMov = await dentesService.movimentacoes(id)
-      setMovimentacoes(resMov.data?.data ?? resMov.data ?? [])
+      setMovimentacoes(resMov.data?.data ?? resMov.data?.movimentacoes ?? resMov.data ?? [])
     } catch {
       // erro tratado sem fechar o modal
     } finally {
