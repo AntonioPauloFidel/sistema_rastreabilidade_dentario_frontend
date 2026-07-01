@@ -39,7 +39,7 @@ export default function Solicitacoes() {
   const [temItens, setTemItens] = useState(false)
   // dentes disponíveis agrupados: { [instituicaoId]: { [tipoDente]: count } }
   const [disponiveis, setDisponiveis] = useState({})
-  const [carregandoDisponiveis, setCarregandoDisponiveis] = useState(false)
+  const [, setCarregandoDisponiveis] = useState(false)
 
   // Modal aprovar
   const [modalAprovarAberto, setModalAprovarAberto] = useState(false)
