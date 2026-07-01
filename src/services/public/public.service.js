@@ -1,4 +1,4 @@
-import { api } from './api/api'
+import { api } from '../api/api'
 
 export const publicService = {
   solicitarCodigo: (cpf) => api.post('/api/public/solicitar-codigo', { cpf }),
