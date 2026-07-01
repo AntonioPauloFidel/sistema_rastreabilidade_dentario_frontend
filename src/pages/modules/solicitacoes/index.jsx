@@ -65,11 +65,6 @@ export default function Solicitacoes() {
     }
   }, [filtroStatus])
 
-  useEffect(() => {
-    carregar(paginaAtual, filtroStatus)
-    carregarInstituicoes()
-  }, [carregar, carregarInstituicoes, paginaAtual, filtroStatus])
-
   const carregarInstituicoes = useCallback(async () => {
     setInstituicoesCarregando(true)
     try {
@@ -82,6 +77,11 @@ export default function Solicitacoes() {
       setInstituicoesCarregando(false)
     }
   }, [])
+
+  useEffect(() => {
+    carregar(paginaAtual, filtroStatus)
+    carregarInstituicoes()
+  }, [carregar, carregarInstituicoes, paginaAtual, filtroStatus])
 
   const handleFiltroStatus = (valor) => {
     setFiltroStatus(valor)
@@ -246,7 +246,7 @@ export default function Solicitacoes() {
 
       {/* Filtro */}
       <div className={styles.filtros}>
-        <Select
+        <CustomSelect
           value={filtroStatus}
           onChange={handleFiltroStatus}
           options={STATUS_OPTIONS}
@@ -311,7 +311,7 @@ export default function Solicitacoes() {
             label="Finalidade"
             rules={[{ required: true, message: 'Selecione a finalidade.' }]}
           >
-            <Select options={FINALIDADE_OPTIONS} placeholder="Selecione a finalidade" />
+            <CustomSelect options={FINALIDADE_OPTIONS} placeholder="Selecione a finalidade" />
           </Form.Item>
 
           <Form.Item

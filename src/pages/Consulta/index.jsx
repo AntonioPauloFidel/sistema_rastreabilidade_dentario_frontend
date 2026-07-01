@@ -16,6 +16,10 @@ const schemaConsulta = z.object({
     .regex(/^[0-9]{3}\.[0-9]{3}\.[0-9]{3}-[0-9]{2}$/, 'CPF inválido'),
 })
 
+const schemaCodigo = z.object({
+  codigo: z.string().trim().min(4, 'Informe o código recebido.'),
+})
+
 function formatarCpf(valor) {
   const numeros = valor.replace(/\D/g, '').slice(0, 11)
   return numeros
@@ -38,26 +42,51 @@ export default function Consulta() {
   const [resultado, setResultado] = useState(null)
   const [mensagem, setMensagem] = useState('')
   const [carregando, setCarregando] = useState(false)
+  const [etapa, setEtapa] = useState('cpf')
+  const [cpfConsulta, setCpfConsulta] = useState('')
 
-  const { control, handleSubmit, errors } = useFormulario(schemaConsulta, { cpf: '' })
+  const { control: controlCpf, handleSubmit: handleSubmitCpf, errors: errorsCpf } = useFormulario(schemaConsulta, { cpf: '' })
+  const { control: controlCodigo, handleSubmit: handleSubmitCodigo, errors: errorsCodigo } = useFormulario(schemaCodigo, { codigo: '' })
 
-  async function onSubmit({ cpf }) {
+  function extrairDadosResposta(resposta) {
+    const dados = resposta?.data?.dentes ?? resposta?.data?.data ?? resposta?.data ?? resposta
+    return Array.isArray(dados) ? dados : []
+  }
+
+  async function solicitarCodigo({ cpf }) {
+    const cpfNumerico = cpf.replace(/\D/g, '')
     setMensagem('')
     setResultado(null)
     setCarregando(true)
 
     try {
-      const res = await publicService.consultaDentes(cpf)
-      const dados = res.data?.dentes ?? res.data?.data ?? res.data
-      const lista = Array.isArray(dados) ? dados : []
+      await publicService.solicitarCodigo(cpfNumerico)
+      setCpfConsulta(cpfNumerico)
+      setEtapa('codigo')
+      setMensagem('Enviamos um código para o e-mail cadastrado. Informe-o para continuar.')
+    } catch {
+      setMensagem('Não foi possível iniciar a consulta. Verifique o CPF informado e tente novamente.')
+    } finally {
+      setCarregando(false)
+    }
+  }
+
+  async function confirmarCodigo({ codigo }) {
+    setMensagem('')
+    setResultado(null)
+    setCarregando(true)
+
+    try {
+      const res = await publicService.confirmarCodigo(cpfConsulta, codigo.trim())
+      const lista = extrairDadosResposta(res)
 
       if (lista.length === 0) {
-        setMensagem('Nenhum resultado encontrado para o CPF informado.')
+        setMensagem('Nenhum resultado encontrado para os dados informados.')
       } else {
         setResultado(lista)
       }
-    } catch (erro) {
-      setMensagem('Nenhum resultado encontrado para o CPF informado.')
+    } catch {
+      setMensagem('Código inválido ou expirado. Solicite um novo código e tente novamente.')
     } finally {
       setCarregando(false)
     }
@@ -72,34 +101,75 @@ export default function Consulta() {
           <p>Use o CPF para acompanhar o status dos dentes doados com privacidade e segurança.</p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-          <Controller
-            name="cpf"
-            control={control}
-            render={({ field }) => (
-              <Input
-                {...field}
-                rotulo="CPF do doador"
-                placeholder="000.000.000-00"
-                icone={<CreditCard size={18} color="#6B7280" />}
-                erro={errors.cpf?.message}
-                onChange={(event) => {
-                  const valor = formatarCpf(event.target.value)
-                  field.onChange(valor)
-                }}
-              />
-            )}
-          />
+        {etapa === 'cpf' ? (
+          <form onSubmit={handleSubmitCpf(solicitarCodigo)} className={styles.form}>
+            <Controller
+              name="cpf"
+              control={controlCpf}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  rotulo="CPF do doador"
+                  placeholder="000.000.000-00"
+                  icone={<CreditCard size={18} color="#6B7280" />}
+                  erro={errorsCpf.cpf?.message}
+                  onChange={(event) => {
+                    const valor = formatarCpf(event.target.value)
+                    field.onChange(valor)
+                  }}
+                />
+              )}
+            />
 
-          <Button
-            tipo="submit"
-            variante="primary"
-            tamanho="large"
-            carregando={carregando}
-          >
-            Consultar
-          </Button>
-        </form>
+            <Button
+              tipo="submit"
+              variante="primary"
+              tamanho="large"
+              carregando={carregando}
+            >
+              Enviar código
+            </Button>
+          </form>
+        ) : (
+          <form onSubmit={handleSubmitCodigo(confirmarCodigo)} className={styles.form}>
+            <Controller
+              name="codigo"
+              control={controlCodigo}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  rotulo="Código recebido por e-mail"
+                  placeholder="Digite o código"
+                  icone={<CreditCard size={18} color="#6B7280" />}
+                  erro={errorsCodigo.codigo?.message}
+                />
+              )}
+            />
+
+            <div className={styles.actions}>
+              <Button
+                tipo="button"
+                variante="secondary"
+                tamanho="large"
+                onClick={() => {
+                  setEtapa('cpf')
+                  setMensagem('')
+                  setResultado(null)
+                }}
+              >
+                Alterar CPF
+              </Button>
+              <Button
+                tipo="submit"
+                variante="primary"
+                tamanho="large"
+                carregando={carregando}
+              >
+                Confirmar consulta
+              </Button>
+            </div>
+          </form>
+        )}
 
         <p className={styles.notice}>
           Caso o CPF não esteja cadastrado, exibiremos apenas uma resposta neutra para proteger a privacidade do doador.
