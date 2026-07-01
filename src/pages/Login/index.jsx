@@ -23,7 +23,18 @@ export default function Login() {
       await login(email, senha)
       navigate(destino, { replace: true })
     } catch (err) {
-      setErro(err.response?.data?.mensagem ?? 'Credenciais inválidas. Tente novamente.')
+      const mensagem = err?.response?.data?.mensagem
+        ?? err?.response?.data?.message
+        ?? err?.response?.data?.error
+        ?? err?.message
+
+      if (err?.code === 'ERR_NETWORK' || err?.message === 'Network Error') {
+        setErro('Não foi possível conectar com o servidor. Verifique se o backend está rodando.')
+      } else if (err?.response?.status === 401) {
+        setErro('E-mail ou senha incorretos. Verifique suas credenciais e tente novamente.')
+      } else {
+        setErro(mensagem || 'Credenciais inválidas. Tente novamente.')
+      }
     } finally {
       setCarregando(false)
     }
